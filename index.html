@@ -102,6 +102,8 @@
       h2,
       h3 {
         font-family: "Bagel Fat One", "Inter", sans-serif;
+        line-height: 1;
+        margin: 0 0 0.5em;
       }
 
       h1,
@@ -111,7 +113,6 @@
 
       h1 {
         text-align: center;
-        margin: 0 0 0.5em;
       }
 
       .crates-grid {
@@ -185,6 +186,9 @@
         }
         &:nth-of-type(3) .crate-box {
           background-image: url(./assets/crate-plastic--green.webp);
+        }
+        &:nth-of-type(4) .crate-box {
+          background-image: url(./assets/crate-plastic--red.webp);
         }
       }
 
@@ -345,12 +349,7 @@
           opacity: 1;
         }
       }
-      .modal-content h2 {
-        font-size: 2em;
-        margin: 0 0 10px;
-      }
       .modal-content p {
-        font-size: 1em;
         margin: 0 0 0.5em;
       }
       .modal-content button {
@@ -405,7 +404,7 @@
 
     <div id="gameOverModal" class="modal">
       <div class="modal-content">
-        <h2 id="finalScoreMessage"></h2>
+        <div id="finalScoreMessage"></div>
         <button id="restartButton">Want to try again?</button>
       </div>
     </div>
@@ -618,13 +617,13 @@
           // Set the final score message based on the score
 
           if (score === 0 && misses === 0) {
-            finalScoreMessage.textContent = `A typical day in the op-shop - you didn't find anything`;
+            finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop</h2> <p>You didn't find anything</p>`;
           } else if (score === 0 && misses >= 1) {
-            finalScoreMessage.textContent = `What a waste of money - all you bought was crap!`;
+            finalScoreMessage.innerHTML = `<h2>What a waste of money</h2> <p>All you bought was crap!</p>`;
           } else if (score === 1) {
-            finalScoreMessage.textContent = `Not bad - you actually found a decent record for a change`;
+            finalScoreMessage.innerHTML = `<h2>Not bad</h2> <p>You actually found a decent record for a change!</p>`;
           } else {
-            finalScoreMessage.textContent = `What a day! You found ${score} good records!`;
+            finalScoreMessage.innerHTML = `<h2>What a day!</h2> <p>You found ${score} good records!</p>`;
           }
           gameOverModal.style.display = "flex";
         };
