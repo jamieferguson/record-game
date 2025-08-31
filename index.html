@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet"
     />
 
@@ -98,8 +98,18 @@
         box-shadow: 0 0 40px #00000010;
       }
 
+      h1,
+      h2,
+      h3 {
+        font-family: "Bagel Fat One", "Inter", sans-serif;
+      }
+
+      h1,
+      h2 {
+        font-size: 3em;
+      }
+
       h1 {
-        font-size: 2em;
         text-align: center;
         margin: 0 0 0.5em;
       }
@@ -371,7 +381,7 @@
         <h1>It's diggin' time!</h1>
         <p>
           The op-shop is closing in 30 secomds &mdash; just enough time for a
-          quick dig.
+          quick look through the crates.
         </p>
         <p>Be warned: If you grab 5 crap ones then it's game over!</p>
         <button id="startButton">Let's go!</button>
@@ -395,8 +405,7 @@
 
     <div id="gameOverModal" class="modal">
       <div class="modal-content">
-        <h2>That's it...</h2>
-        <p id="finalScoreMessage"></p>
+        <h2 id="finalScoreMessage"></h2>
         <button id="restartButton">Want to try again?</button>
       </div>
     </div>
