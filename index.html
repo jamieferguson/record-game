@@ -435,7 +435,6 @@
 
         const startGame = () => {
           startModal.style.display = "none";
-          gameContainer.style.display = "flex";
 
           score = 0;
           misses = 0;
@@ -465,7 +464,7 @@
         const cancelGame = () => {
           gameActive = false;
           clearInterval(timerId);
-          gameContainer.style.display = "none";
+
           startModal.style.display = "flex";
           crateElements.forEach((crate) => {
             clearTimeout(crate.popTimeout);
