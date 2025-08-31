@@ -36,6 +36,7 @@
       }
       html * {
         box-sizing: border-box;
+        position: relative;
       }
       body {
         background-color: var(--bg-color);
@@ -66,6 +67,9 @@
       }
 
       .score-board {
+        position: sticky;
+        z-index: 100;
+        top: 20px;
         display: flex;
         gap: 10px;
         justify-content: space-between;
@@ -74,10 +78,6 @@
         font-size: 0.9em;
         margin-bottom: 10px;
         text-align: center;
-        /* border-bottom: 1px solid #00000010; */
-        @media (width>500px) {
-          padding-inline: 10px;
-        }
       }
       .score-board--inner {
         display: flex;
@@ -87,6 +87,7 @@
 
         > span {
           background-color: #ffffff60;
+          backdrop-filter: blur(20px);
           padding: 0.5em 0.75em;
 
           font-weight: 600;
@@ -99,9 +100,8 @@
         border-radius: 20px;
         flex-direction: column;
         align-items: center;
-        padding: 10px 40px 40px;
+        padding: 20px 20px 40px;
         gap: 0;
-        overflow: hidden;
         box-shadow: 0 0 40px #00000010;
       }
 
@@ -133,6 +133,7 @@
         font-size: 1em;
         padding: 0.5em 1em;
         background: #ffffffcc;
+        backdrop-filter: blur(20px);
         color: var(--text-color--button);
         font-weight: 600;
         border: none;
@@ -154,12 +155,14 @@
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
         touch-action: none;
+        overflow: hidden;
+        padding-inline: 25px;
       }
 
       .crate-container {
         position: relative;
         width: var(--crate-size);
-        height: calc(var(--crate-size) * 1.75);
+        height: calc(var(--crate-size) * 1.7);
         margin-bottom: 10px;
 
         &:after {
@@ -260,7 +263,7 @@
         aspect-ratio: 1;
         cursor: pointer;
         transition: transform 0.3s ease-in;
-        transform: translateY(80%);
+        transform: translateY(76%);
         z-index: 1;
         &:after {
           content: "";
@@ -308,7 +311,7 @@
       }
       .record.pop {
         pointer-events: auto;
-        transform: translateY(5%);
+        transform: translateY(0);
         transition: transform 0.3s ease-out;
       }
       .record-img {
@@ -325,6 +328,15 @@
         z-index: 5;
         transform: translateY(0);
         border-radius: 2px;
+        &:before {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          top: 20%;
+          background-color: #00000060;
+        }
       }
 
       .modal {
@@ -382,7 +394,7 @@
         font-size: 1.1em;
       }
 
-      table {
+      /* table {
         border-collapse: collapse;
         background-color: var(--wall-color);
         border-radius: 10px;
@@ -398,6 +410,11 @@
         font-weight: 600;
         font-size: 0.8em;
         background-color: #ffffff20;
+      } */
+
+      address {
+        font-style: normal;
+        font-size: 13px;
       }
     </style>
   </head>
@@ -414,16 +431,16 @@
       </div>
     </div>
     <main>
-      <div class="score-board">
-        <div class="score-board--inner">
-          <span style="display: none">Good: <span id="score">0</span></span>
-          <span style="display: none">Crap: <span id="misses">0</span></span>
-          <span>Total: <span id="total">0</span></span>
-          <span>Time left: <span id="timer">30</span>s</span>
-        </div>
-        <button class="btn" id="cancelGameButton">Give up</button>
-      </div>
       <div class="game-container" id="gameContainer">
+        <div class="score-board">
+          <div class="score-board--inner">
+            <span style="display: none">Good: <span id="score">0</span></span>
+            <span style="display: none">Crap: <span id="misses">0</span></span>
+            <span>Total: <span id="total">0</span></span>
+            <span>Time left: <span id="timer">30</span>s</span>
+          </div>
+          <button class="btn" id="cancelGameButton">Give up</button>
+        </div>
         <div class="crates-grid">
           <!-- Crates will be dynamically generated here -->
         </div>
@@ -436,8 +453,11 @@
         <button class="btn" id="restartButton">Want to try again?</button>
       </div>
     </div>
+    <footer>
+      <address>&copy; J. Ferguson <span id="currentYear"></span></address>
+    </footer>
 
-    <table>
+    <!-- <table>
       <caption>
         Ideas
       </caption>
@@ -461,7 +481,7 @@
         <td>Bonus time</td>
         <td>...</td>
       </tr>
-    </table>
+    </table> -->
 
     <script>
       window.onload = function () {
@@ -495,7 +515,7 @@
         const goodRecordProbability = 0.1;
 
         const recordTypes = {
-          GOOD: 4,
+          GOOD: 6,
           BAD: 39,
         };
 
@@ -665,7 +685,7 @@
           } else if (score === 0 && misses >= 1) {
             finalScoreMessage.innerHTML = `<h2>What a waste of money!</h2> <p>All you bought was crap.</p>`;
           } else if (score === 1) {
-            finalScoreMessage.innerHTML = `<h2>How'd you do?</h2> <p>You actually found something decent, but it has the wrong record inside it. Oh well.</p>`;
+            finalScoreMessage.innerHTML = `<h2>How'd you do?</h2> <p>You actually found something decent, but it has the wrong record inside. Oh well.</p>`;
           } else {
             finalScoreMessage.innerHTML = `<h2>What a day!</h2> <p>You found ${score} good records, but they're in terrible condition. Oh well.</p>`;
           }
@@ -766,6 +786,10 @@
           crate.crateEl.addEventListener("click", handleClick);
         });
         gameLoop(0); // Start the animation loop
+
+        const yearSpan = document.getElementById("currentYear");
+        const currentYear = new Date().getFullYear();
+        yearSpan.textContent = currentYear;
       };
     </script>
   </body>
