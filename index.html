@@ -139,8 +139,7 @@
         cursor: pointer;
         transition: background-color 0.25s, transform 0.25s;
         box-shadow: 0 2px 10px #00000020, 0 10px 20px #00000010,
-          0 5px 10px #00000010, inset 0 2px 3px #ffffff90,
-          inset 0 -5px 20px #00000020;
+          0 5px 10px #00000010, inset 0 2px 3px #ffffff90;
 
         &:hover,
         &:focus-visible {
@@ -203,6 +202,9 @@
           &:after {
             border-radius: 3px 0 0 3px;
           }
+          .record.pop {
+            transform: translateY(5%) rotate(1deg);
+          }
         }
         &:nth-of-type(even) {
           &:after {
@@ -213,6 +215,9 @@
           }
           &:after {
             border-radius: 0 3px 3px 0;
+          }
+          .record.pop {
+            transform: translateY(5%) rotate(-1deg);
           }
         }
         &:nth-of-type(2) .crate-box {
@@ -254,7 +259,7 @@
         width: 94%;
         aspect-ratio: 1;
         cursor: pointer;
-        transition: transform 0.3s ease-out;
+        transition: transform 0.3s ease-in;
         transform: translateY(80%);
         box-shadow: 0 0 5px #00000020;
         z-index: 1;
@@ -305,6 +310,7 @@
       .record.pop {
         pointer-events: auto;
         transform: translateY(5%);
+        transition: transform 0.3s ease-out;
       }
       .record-img {
         width: 100%;
@@ -476,7 +482,7 @@
         const goodRecordProbability = 0.1;
 
         const recordTypes = {
-          GOOD: 3,
+          GOOD: 4,
           BAD: 35,
         };
 
