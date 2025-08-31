@@ -548,7 +548,7 @@
               imgEl: img,
               coverEl: crateCover,
               coverImgEl: coverImg,
-              isAvailable: true, // New state to track if a crate is free
+              isLocked: false, // New state to track if a crate is locked
               type: null,
               popTimeout: null,
             });
@@ -568,9 +568,9 @@
         const popRecord = () => {
           if (!gameActive) return;
 
-          // Find an available crate using the new `isAvailable` flag
+          // Find an available crate using the new `isLocked` flag
           const availableSpots = crateElements.filter(
-            (crate) => crate.isAvailable
+            (crate) => !crate.isLocked
           );
 
           if (availableSpots.length === 0) return;
@@ -578,8 +578,8 @@
           const randomIndex = Math.floor(Math.random() * availableSpots.length);
           const crate = availableSpots[randomIndex];
 
-          // Immediately mark the crate as unavailable
-          crate.isAvailable = false;
+          // Immediately lock the crate to prevent another record from popping here
+          crate.isLocked = true;
 
           const isGoodRecord = Math.random() < goodRecordProbability;
           let selectedRecord;
@@ -618,22 +618,19 @@
 
         const hideRecord = (crate) => {
           // Listen for the transition to finish before making the spot available
-          const onTransitionEnd = () => {
+          const onTransitionEnd = (e) => {
+            // Ensure we are only listening for the transform property
+            if (e.propertyName !== 'transform') return;
+
+            // Cleanup classes and listener after the animation is complete
             crate.recordEl.classList.remove("good-record", "bad-record");
-            crate.recordEl.removeEventListener(
-              "transitionend",
-              onTransitionEnd
-            );
-            crate.isAvailable = true; // Mark as available only after the animation
+            crate.recordEl.removeEventListener("transitionend", onTransitionEnd);
+            crate.isLocked = false; // Unlock the crate only after the animation
           };
 
-          // Check if the listener is already attached, to prevent multiple listeners
-          if (!crate.recordEl.getAttribute("data-listener")) {
-            crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
-              once: true,
-            });
-            crate.recordEl.setAttribute("data-listener", "true");
-          }
+          crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
+            once: true,
+          });
 
           // Remove the pop class to start the hide animation
           crate.recordEl.classList.remove("pop");
@@ -706,7 +703,7 @@
             crate.recordEl.classList.remove("pop");
             crate.recordEl.classList.remove("good-record", "bad-record");
             clearTimeout(crate.popTimeout);
-            crate.isAvailable = true; // Reset availability
+            crate.isLocked = false; // Reset lock state
           });
 
           lastPopTime = performance.now();
@@ -728,7 +725,7 @@
           crateElements.forEach((crate) => {
             clearTimeout(crate.popTimeout);
             crate.recordEl.classList.remove("pop");
-            crate.isAvailable = true;
+            crate.isLocked = false;
           });
         };
 
