@@ -24,6 +24,8 @@
         --highlight-color-good: rgb(115, 230, 132);
         --highlight-color-bad: rgb(150, 32, 32);
 
+        --title-color: #efd082;
+
         /* Customizable sizing and spacing */
         --crate-size: 130px;
         @media (width> 500px) {
@@ -71,6 +73,9 @@
         margin-bottom: 10px;
         text-align: center;
         /* border-bottom: 1px solid #00000010; */
+        @media (width>500px) {
+          padding-inline: 10px;
+        }
       }
       .score-board--inner {
         display: flex;
@@ -79,7 +84,7 @@
         overflow: hidden;
 
         > span {
-          background-color: #ffffff40;
+          background-color: #ffffff60;
           padding: 0.5em 0.75em;
 
           font-weight: 600;
@@ -102,17 +107,46 @@
       h2,
       h3 {
         font-family: "Bagel Fat One", "Inter", sans-serif;
-        line-height: 1;
+        line-height: 0.75;
         margin: 0 0 0.5em;
+        text-shadow: 0 4px 0 #00000010, 0 10px 10px #00000020,
+          0 20px 40px #00000080;
+        color: var(--title-color);
       }
 
       h1,
       h2 {
-        font-size: 3em;
+        font-size: 5em;
+        transform: rotate(-2deg);
       }
 
       h1 {
         text-align: center;
+      }
+
+      p {
+        line-height: 1.5;
+      }
+
+      .btn {
+        font-size: 1em;
+        padding: 0.5em 1em;
+        background: #ffffffcc;
+        color: var(--text-color--button);
+        font-weight: 600;
+        border: none;
+        border-radius: 5em;
+        cursor: pointer;
+        transition: background-color 0.25s, transform 0.25s;
+        box-shadow: 0 2px 10px #00000020, 0 10px 20px #00000010,
+          0 5px 10px #00000010, inset 0 2px 3px #ffffff90,
+          inset 0 -5px 20px #00000020;
+
+        &:hover,
+        &:focus-visible {
+          background-color: white;
+          transform: scale(1.05);
+        }
       }
 
       .crates-grid {
@@ -161,7 +195,7 @@
         }
         &:nth-of-type(odd) {
           &:after {
-            left: -20px;
+            left: -23px;
           }
           &:before {
             left: -20px;
@@ -172,7 +206,7 @@
         }
         &:nth-of-type(even) {
           &:after {
-            right: -20px;
+            right: -23px;
           }
           &:before {
             right: -20px;
@@ -210,6 +244,7 @@
       }
 
       .record {
+        border: none;
         background-color: transparent;
         padding: 0;
         border-radius: 0;
@@ -241,12 +276,12 @@
       }
       .bad-record {
         &:active {
-          animation: badRecordPress 0.25s ease forwards;
+          animation: badRecordPress 0.15s ease forwards;
         }
       }
       .good-record {
         &:active {
-          animation: goodRecordPress 0.25s ease forwards;
+          animation: goodRecordPress 0.15s ease forwards;
         }
       }
       @keyframes badRecordPress {
@@ -285,37 +320,6 @@
         z-index: 5;
         transform: translateY(0);
       }
-      .buttons-container {
-        display: flex;
-        gap: 15px;
-        margin-top: 15px;
-      }
-
-      button {
-        font-size: 1em;
-        padding: 0.5em 1em;
-        background: #ffffffcc;
-        color: var(--text-color--button);
-        font-weight: 600;
-        border: none;
-        border-radius: 5em;
-        cursor: pointer;
-        transition: background-color 0.2s;
-        box-shadow: 0 5px 20px #00000010, 0 5px 10px #00000010;
-
-        &:hover,
-        &:focus-visible {
-          background-color: white;
-        }
-      }
-      /* button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-      }
-      button:active {
-        transform: translateY(0);
-        box-shadow: 5px 10px rgba(0, 0, 0, 0.3);
-      } */
 
       .modal {
         position: fixed;
@@ -323,18 +327,19 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.3);
         color: var(--text-color--modal);
         display: none;
         justify-content: center;
         align-items: center;
         z-index: 1000;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(20px);
       }
       .modal-content {
-        max-width: 60ch;
+        max-width: 45ch;
         padding: 30px;
         border-radius: 20px;
+        padding: 2em 2em 4em;
         text-align: center;
         transform: scale(0.8);
         animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
@@ -349,11 +354,13 @@
           opacity: 1;
         }
       }
+
       .modal-content p {
         margin: 0 0 0.5em;
       }
-      .modal-content button {
-        margin-top: 20px;
+      .modal-content .btn {
+        margin-top: 2em;
+        font-size: 1.1em;
       }
 
       table {
@@ -380,11 +387,14 @@
       <div class="modal-content">
         <h1>It's diggin' time!</h1>
         <p>
-          The op-shop is closing in 30 secomds &mdash; just enough time for a
+          The op-shop is closing in 30 seconds &mdash; just enough time for a
           quick look through the crates.
         </p>
-        <p>Be warned: If you grab 5 crap ones then it's game over!</p>
-        <button id="startButton">Let's go!</button>
+        <p>
+          <strong>Be warned:</strong> If you grab 5 crap ones then it's game
+          over!
+        </p>
+        <button class="btn" id="startButton">Let's go!</button>
       </div>
     </div>
     <main>
@@ -394,7 +404,7 @@
           <span>Crap: <span id="misses">0</span></span>
           <span>Time left: <span id="timer">30</span>s</span>
         </div>
-        <button id="cancelGameButton">Give up</button>
+        <button class="btn" id="cancelGameButton">Give up</button>
       </div>
       <div class="game-container" id="gameContainer">
         <div class="crates-grid">
@@ -406,7 +416,7 @@
     <div id="gameOverModal" class="modal">
       <div class="modal-content">
         <div id="finalScoreMessage"></div>
-        <button id="restartButton">Want to try again?</button>
+        <button class="btn" id="restartButton">Want to try again?</button>
       </div>
     </div>
 
@@ -618,11 +628,11 @@
           // Set the final score message based on the score
 
           if (score === 0 && misses === 0) {
-            finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop</h2> <p>You didn't find anything</p>`;
+            finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop!</h2> <p>You didn't find anything.</p>`;
           } else if (score === 0 && misses >= 1) {
-            finalScoreMessage.innerHTML = `<h2>What a waste of money</h2> <p>All you bought was crap!</p>`;
+            finalScoreMessage.innerHTML = `<h2>What a waste of money!</h2> <p>All you bought was crap.</p>`;
           } else if (score === 1) {
-            finalScoreMessage.innerHTML = `<h2>Not bad</h2> <p>You actually found a decent record for a change!</p>`;
+            finalScoreMessage.innerHTML = `<h2>Not bad!</h2> <p>You actually found a decent record for a change.</p>`;
           } else {
             finalScoreMessage.innerHTML = `<h2>What a day!</h2> <p>You found ${score} good records!</p>`;
           }
