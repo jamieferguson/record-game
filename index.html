@@ -548,6 +548,7 @@
               coverImgEl: coverImg,
               isUp: false,
               isAnimating: false,
+              isLocked: false,
               type: null,
               popTimeout: null,
             });
@@ -568,7 +569,7 @@
           if (!gameActive) return;
 
           const availableSpots = crateElements.filter(
-            (crate) => !crate.isUp && !crate.isAnimating
+            (crate) => !crate.isUp && !crate.isAnimating && !crate.isLocked
           );
           if (availableSpots.length === 0) return;
 
@@ -599,6 +600,7 @@
 
           crate.isUp = true;
           crate.isAnimating = true; // Mark as animating
+          crate.isLocked = true; // Mark as locked
           crate.type = selectedRecord.type;
           crate.imgEl.src = selectedRecord.imageUrl;
 
@@ -617,6 +619,7 @@
               // Wait for the animation to finish before making it available again
               setTimeout(() => {
                 crate.isAnimating = false;
+                crate.isLocked = false;
               }, 300); // Corresponds to the transition duration in CSS
             }
           }, hideAfter);
@@ -673,6 +676,7 @@
             // Wait for the animation to finish before making it available again
             setTimeout(() => {
               crate.isAnimating = false;
+              crate.isLocked = false;
             }, 500); // Corresponds to the transition duration in CSS
 
             updateScoreboard();
@@ -697,6 +701,7 @@
             clearTimeout(crate.popTimeout);
             crate.isUp = false;
             crate.isAnimating = false;
+            crate.isLocked = false;
             crate.type = null;
           });
 
@@ -721,6 +726,7 @@
             crate.recordEl.classList.remove("pop");
             crate.isUp = false;
             crate.isAnimating = false;
+            crate.isLocked = false;
           });
         };
 
