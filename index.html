@@ -193,7 +193,9 @@
     <div id="startModal" class="modal" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time!</h1>
-        <p>Grab the good stuff and avoid the crap.</p>
+        <p>
+          The op-shop is about to shut - grab the good stuff and avoid the crap.
+        </p>
         <p>If you grab 5 crap ones then it's game over.</p>
         <button id="startButton">Start</button>
       </div>
@@ -203,6 +205,7 @@
       <div class="score-board">
         <span>Good stuff: <span id="score">0</span></span>
         <span>Crap: <span id="misses">0</span></span>
+        <span>Time: <span id="timer">30</span>s</span>
       </div>
       <div class="crates-grid">
         <!-- Crates will be dynamically generated here -->
@@ -233,6 +236,7 @@
         const finalScoreSpan = document.getElementById("finalScore");
         const scoreSpan = document.getElementById("score");
         const missesSpan = document.getElementById("misses");
+        const timerSpan = document.getElementById("timer");
         const cratesGrid = document.querySelector(".crates-grid");
 
         let score = 0;
@@ -241,6 +245,8 @@
         let lastPopTime = 0;
         let popInterval = 1000; // Time in milliseconds between pops
         let crateElements = [];
+        let gameTime = 30; // 30 second timer
+        let timerId;
 
         const recordTypes = {
           GOOD: [
@@ -375,13 +381,14 @@
         };
 
         const checkGameOver = () => {
-          if (misses >= 5) {
+          if (misses >= 5 || gameTime <= 0) {
             gameActive = false;
             showGameOver();
           }
         };
 
         const showGameOver = () => {
+          clearInterval(timerId);
           finalScoreSpan.textContent = score;
           gameOverModal.style.display = "flex";
         };
@@ -389,6 +396,7 @@
         const updateScoreboard = () => {
           scoreSpan.textContent = score;
           missesSpan.textContent = misses;
+          timerSpan.textContent = gameTime;
         };
 
         const handleClick = (e) => {
@@ -425,6 +433,7 @@
 
           score = 0;
           misses = 0;
+          gameTime = 30; // Reset timer
           gameActive = true;
           popInterval = 1000;
           updateScoreboard();
@@ -439,10 +448,17 @@
           });
 
           lastPopTime = performance.now();
+          clearInterval(timerId); // Clear any existing timer
+          timerId = setInterval(() => {
+            gameTime--;
+            updateScoreboard();
+            checkGameOver();
+          }, 1000);
         };
 
         const cancelGame = () => {
           gameActive = false;
+          clearInterval(timerId);
           gameContainer.style.display = "none";
           startModal.style.display = "flex";
           crateElements.forEach((crate) => {
@@ -465,7 +481,6 @@
         // --- Event Listeners ---
         startButton.addEventListener("click", startGame);
         restartButton.addEventListener("click", startGame);
-
         cancelGameButton.addEventListener("click", cancelGame);
 
         // --- Initial setup ---
