@@ -17,7 +17,6 @@
         --text-color: #333;
         --text-color--modal: white;
         --text-color--button: var(--text-color);
-        --container-bg: #2e2e4a;
 
         --shelf-color: #dbd3c5;
         --wall-color: #ffffff20;
@@ -43,7 +42,7 @@
         justify-content: center;
         align-items: center;
         margin: 0;
-        padding: 10px;
+        padding: 20px 10px 50px;
         box-sizing: border-box;
         user-select: none;
         -webkit-user-select: none;
@@ -170,6 +169,12 @@
           &:after {
             border-radius: 0 3px 3px 0;
           }
+        }
+        &:nth-of-type(2) .crate-box {
+          background-image: url(./assets/crate-plastic--blue.webp);
+        }
+        &:nth-of-type(3) .crate-box {
+          background-image: url(./assets/crate-plastic--green.webp);
         }
       }
 
@@ -344,6 +349,7 @@
 
       table {
         border-collapse: collapse;
+        background-color: var(--wall-color);
         caption {
           margin-bottom: 0.5em;
         }
