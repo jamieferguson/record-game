@@ -85,7 +85,7 @@
         cursor: pointer;
         transition: transform 0.3s ease-out;
         transform: translateY(80%);
-        pointer-events: none;
+
         box-shadow: 0 0 5px #00000020;
         z-index: 1;
         &:after {
@@ -193,7 +193,8 @@
     <div id="startModal" class="modal" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time!</h1>
-        <p>Grab the good stuff and avoid the crap</p>
+        <p>Grab the good stuff and avoid the crap.</p>
+        <p>If you grab 5 crap ones then it's game over.</p>
         <button id="startButton">Start</button>
       </div>
     </div>
@@ -360,7 +361,7 @@
           crate.recordEl.classList.add("pop");
 
           // Hide the record after it's been up for a while
-          const hideAfter = 500;
+          const hideAfter = 800;
           crate.popTimeout = setTimeout(() => {
             if (crate.isUp) {
               crate.recordEl.classList.remove("pop");
