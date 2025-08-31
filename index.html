@@ -6,12 +6,24 @@
     <title>Diggin' time!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
 
     <style>
       :root {
-        --bg-color: #222;
-        --text-color: #e0e0e0;
+        --bg-color: #b8b2a7;
+        --text-color: #333;
+        --text-color--modal: white;
+        --text-color--button: var(--text-color);
         --container-bg: #2e2e4a;
+
+        --shelf-color: #dbd3c5;
+        --wall-color: #ffffff20;
+
+        --highlight-color-good: rgb(115, 230, 132);
+        --highlight-color-bad: rgb(150, 32, 32);
 
         /* Customizable sizing and spacing */
         --crate-size: 150px;
@@ -23,53 +35,118 @@
         background-color: var(--bg-color);
         color: var(--text-color);
         display: flex;
+        gap: 40px;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
         margin: 0;
         padding: 20px;
         box-sizing: border-box;
         user-select: none;
         -webkit-user-select: none;
         touch-action: none;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-          sans-serif;
+        font-family: "Inter", sans-serif;
       }
+      main {
+        display: flex;
+        /* gap: 20px; */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .score-board {
+        display: flex;
+        gap: 20px;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        font-size: 1em;
+        text-align: center;
+        /* border-bottom: 1px solid #00000010; */
+        padding-bottom: 10px;
+      }
+      .score-board--inner {
+        display: flex;
+        gap: 20px;
+      }
+
       .game-container {
         display: flex;
-        background-color: #ffffff10;
+        background-color: var(--wall-color);
         border-radius: 20px;
         flex-direction: column;
         align-items: center;
-        padding: clamp(15px, 5%, 30px);
-        gap: 15px;
+        padding: 0 30px 30px;
+        gap: 0;
       }
+
       h1 {
         font-size: 2em;
         text-align: center;
         margin: 0 0 0.5em;
       }
-      .score-board {
-        display: flex;
-        gap: 10px;
-        justify-content: space-around;
-        align-items: center;
-        width: 100%;
-        font-size: 1em;
-        text-align: center;
-      }
+
       .crates-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0 15px;
+        gap: 0 10px;
         touch-action: none;
+        margin-bottom: 40px;
       }
       .crate-container {
         position: relative;
         width: var(--crate-size);
         height: calc(var(--crate-size) * 1.75);
-        overflow: hidden;
+        margin-bottom: 10px;
+
+        &:before {
+          pointer-events: none;
+          content: "";
+          position: absolute;
+          top: 100%;
+          left: -5px;
+          right: -5px;
+          height: 10px;
+          background-color: var(--shelf-color);
+          border-top: 1px solid #ffffff90;
+          border-bottom: 1px solid #00000060;
+          box-shadow: 0 10px 5px #00000010;
+          z-index: 10;
+        }
+        &:after {
+          pointer-events: none;
+          content: "";
+          position: absolute;
+          top: calc(100% + 10px);
+          left: -5px;
+          right: -5px;
+          height: 60px;
+          z-index: 10;
+          background: linear-gradient(
+            0deg,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.1) 100%
+          );
+        }
+        &:nth-of-type(odd) {
+          &:before,
+          &:after {
+            left: -20px;
+          }
+          &:before {
+            border-radius: 3px 0 0 3px;
+          }
+        }
+        &:nth-of-type(even) {
+          &:before,
+          &:after {
+            right: -20px;
+          }
+          &:before {
+            border-radius: 0 3px 3px 0;
+          }
+        }
       }
       .crate-box {
         position: absolute;
@@ -82,6 +159,9 @@
         z-index: 10;
       }
       .record {
+        background-color: transparent;
+        padding: 0;
+        border-radius: 0;
         position: absolute;
         top: 5%;
         left: 5%;
@@ -90,12 +170,12 @@
         cursor: pointer;
         transition: transform 0.3s ease-out;
         transform: translateY(80%);
-
         box-shadow: 0 0 5px #00000020;
         z-index: 1;
         &:after {
           content: "";
           position: absolute;
+          pointer-events: none;
           bottom: 0;
           left: 0;
           right: 0;
@@ -106,6 +186,34 @@
             rgba(0, 0, 0, 0.5) 40%,
             rgba(0, 0, 0, 0.5) 100%
           );
+        }
+      }
+      .bad-record {
+        &:focus {
+          animation: badRecordPress 0.25s ease forwards;
+        }
+      }
+      .good-record {
+        &:focus {
+          animation: goodRecordPress 0.25s ease forwards;
+        }
+      }
+      @keyframes badRecordPress {
+        0% {
+          outline: 0 solid var(--highlight-color-bad);
+        }
+        100% {
+          outline: 15px solid transparent;
+          outline-offset: 5px;
+        }
+      }
+      @keyframes goodRecordPress {
+        0% {
+          outline: 0 solid var(--highlight-color-good);
+        }
+        100% {
+          outline: 15px solid transparent;
+          outline-offset: 5px;
         }
       }
       .record.pop {
@@ -131,11 +239,13 @@
         gap: 15px;
         margin-top: 15px;
       }
+
       button {
         font-size: 1em;
         padding: 0.5em 1em;
-        background: #555;
-        color: var(--text-color);
+        background: #ffffff90;
+        color: var(--text-color--button);
+        font-weight: 600;
         border: none;
         border-radius: 10px;
         cursor: pointer;
@@ -147,8 +257,9 @@
       }
       button:active {
         transform: translateY(0);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        box-shadow: 5px 10px rgba(0, 0, 0, 0.3);
       } */
+
       .modal {
         position: fixed;
         top: 0;
@@ -156,6 +267,7 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
+        color: var(--text-color--modal);
         display: none;
         justify-content: center;
         align-items: center;
@@ -187,10 +299,26 @@
       }
       .modal-content p {
         font-size: 1em;
-        margin: 0;
+        margin: 0 0 0.5em;
       }
       .modal-content button {
         margin-top: 20px;
+      }
+
+      table {
+        border-collapse: collapse;
+        caption {
+          margin-bottom: 0.5em;
+        }
+      }
+      td {
+        border: 1px solid #00000010;
+        padding: 10px;
+      }
+      thead {
+        font-weight: 600;
+        font-size: 0.8em;
+        background-color: #00000010;
       }
     </style>
   </head>
@@ -198,33 +326,62 @@
     <div id="startModal" class="modal" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time!</h1>
-        <p>
-          The op-shop is about to shut - grab the good stuff and avoid the crap.
-        </p>
-        <p>If you grab 5 crap ones then it's game over.</p>
+        <p>The op-shop is about to shut - quick, see what you can find.</p>
+        <p>Be warned: If you grab 5 crap ones then it's game over!</p>
         <button id="startButton">Start</button>
       </div>
     </div>
-
-    <div class="game-container" id="gameContainer">
+    <main>
       <div class="score-board">
-        <span>Scores: <span id="score">0</span></span>
-        <span>Crap: <span id="misses">0</span></span>
-        <span>Time: <span id="timer">30</span>s</span>
-        <button id="cancelGameButton">End game</button>
+        <div class="score-board--inner">
+          <span>Scores: <span id="score">0</span></span>
+          <span>Crap: <span id="misses">0</span></span>
+          <span>Time left: <span id="timer">30</span>s</span>
+        </div>
+        <button id="cancelGameButton">Give up</button>
       </div>
-      <div class="crates-grid">
-        <!-- Crates will be dynamically generated here -->
+      <div class="game-container" id="gameContainer">
+        <div class="crates-grid">
+          <!-- Crates will be dynamically generated here -->
+        </div>
       </div>
-    </div>
+    </main>
 
     <div id="gameOverModal" class="modal">
       <div class="modal-content">
-        <h2>Game Over!</h2>
-        <p>Your Final Score: <span id="finalScore">0</span></p>
-        <button id="restartButton">Play Again</button>
+        <h2>Time's up...</h2>
+        <p id="finalScoreMessage">
+          You found <span id="finalScore">0</span> good records
+        </p>
+        <button id="restartButton">Try Again</button>
       </div>
     </div>
+
+    <table>
+      <caption>
+        Ideas
+      </caption>
+      <thead>
+        <td>Name</td>
+        <td>Description</td>
+      </thead>
+      <tr>
+        <td>Grails</td>
+        <td>Records that give you a 10x</td>
+      </tr>
+      <tr>
+        <td>Empty sleeves</td>
+        <td>Give you a penalty</td>
+      </tr>
+      <tr>
+        <td>Wrong record in sleeve</td>
+        <td>Give you a penalty</td>
+      </tr>
+      <tr>
+        <td>Bonus time</td>
+        <td>...</td>
+      </tr>
+    </table>
 
     <script>
       window.onload = function () {
@@ -236,7 +393,7 @@
         const cancelGameButton = document.getElementById("cancelGameButton");
 
         const gameOverModal = document.getElementById("gameOverModal");
-        const finalScoreSpan = document.getElementById("finalScore");
+        const finalScoreMessage = document.getElementById("finalScoreMessage");
         const scoreSpan = document.getElementById("score");
         const missesSpan = document.getElementById("misses");
         const timerSpan = document.getElementById("timer");
@@ -252,46 +409,8 @@
         let timerId;
 
         const recordTypes = {
-          GOOD: [
-            {
-              imageUrl: "./assets/covers-good/cover-good-01.jpg",
-              type: "good",
-            },
-            {
-              imageUrl: "./assets/covers-good/cover-good-02.jpg",
-              type: "good",
-            },
-          ],
-          BAD: [
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-01.jpg",
-              type: "bad",
-            },
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-02.jpg",
-              type: "bad",
-            },
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-03.jpg",
-              type: "bad",
-            },
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-04.jpg",
-              type: "bad",
-            },
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-05.jpg",
-              type: "bad",
-            },
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-06.jpg",
-              type: "bad",
-            },
-            {
-              imageUrl: "./assets/covers-bad/cover-bad-07.jpg",
-              type: "bad",
-            },
-          ],
+          GOOD: 2,
+          BAD: 8,
         };
 
         const generateCrates = () => {
@@ -302,7 +421,7 @@
             crateContainer.className = "crate-container";
 
             // The record div
-            const record = document.createElement("div");
+            const record = document.createElement("button");
             record.className = "record";
             record.dataset.index = i;
 
@@ -341,12 +460,12 @@
         };
 
         const setCrateCovers = () => {
-          const badRecords = recordTypes.BAD;
+          const numBadRecords = recordTypes.BAD;
           crateElements.forEach((crate) => {
-            const randomBadRecordIndex = Math.floor(
-              Math.random() * badRecords.length
-            );
-            crate.coverImgEl.src = badRecords[randomBadRecordIndex].imageUrl;
+            const randomIndex = Math.floor(Math.random() * numBadRecords) + 1;
+            const paddedIndex = String(randomIndex).padStart(2, "0");
+            crate.coverImgEl.src = `./assets/covers-bad/cover-bad-${paddedIndex}.jpg`;
+            crate.coverEl.classList.add("bad-record");
           });
         };
 
@@ -362,16 +481,34 @@
           const crate = availableSpots[randomIndex];
 
           const isGoodRecord = Math.random() > 0.7;
-          const recordSet = isGoodRecord ? recordTypes.GOOD : recordTypes.BAD;
-          const randomRecordIndex = Math.floor(
-            Math.random() * recordSet.length
-          );
-          const selectedRecord = recordSet[randomRecordIndex];
+          let selectedRecord;
+          if (isGoodRecord) {
+            const numGoodRecords = recordTypes.GOOD;
+            const randomRecordIndex =
+              Math.floor(Math.random() * numGoodRecords) + 1;
+            const paddedIndex = String(randomRecordIndex).padStart(2, "0");
+            selectedRecord = {
+              imageUrl: `./assets/covers-good/cover-good-${paddedIndex}.jpg`,
+              type: "good",
+            };
+          } else {
+            const numBadRecords = recordTypes.BAD;
+            const randomRecordIndex =
+              Math.floor(Math.random() * numBadRecords) + 1;
+            const paddedIndex = String(randomRecordIndex).padStart(2, "0");
+            selectedRecord = {
+              imageUrl: `./assets/covers-bad/cover-bad-${paddedIndex}.jpg`,
+              type: "bad",
+            };
+          }
 
           crate.isUp = true;
           crate.isAnimating = true; // Mark as animating
           crate.type = selectedRecord.type;
           crate.imgEl.src = selectedRecord.imageUrl;
+
+          // Add the appropriate class based on the record type
+          crate.recordEl.classList.add(`${selectedRecord.type}-record`);
 
           crate.recordEl.classList.add("pop");
 
@@ -380,6 +517,7 @@
           crate.popTimeout = setTimeout(() => {
             if (crate.isUp) {
               crate.recordEl.classList.remove("pop");
+              crate.recordEl.classList.remove("good-record", "bad-record");
               crate.isUp = false;
               // Wait for the animation to finish before making it available again
               setTimeout(() => {
@@ -398,7 +536,17 @@
 
         const showGameOver = () => {
           clearInterval(timerId);
-          finalScoreSpan.textContent = score;
+          // Set the final score message based on the score
+
+          if (score === 0 && misses === 0) {
+            finalScoreMessage.textContent = `You didn't find anything`;
+          } else if (score === 0 && misses >= 1) {
+            finalScoreMessage.textContent = `It's a typical day in the op-shop - all you found was crap!`;
+          } else if (score === 1) {
+            finalScoreMessage.textContent = `Not bad - you actually found 1 decent record`;
+          } else {
+            finalScoreMessage.textContent = `What a day! You found ${score} good records!`;
+          }
           gameOverModal.style.display = "flex";
         };
 
@@ -424,6 +572,7 @@
             }
 
             crate.recordEl.classList.remove("pop");
+            crate.recordEl.classList.remove("good-record", "bad-record");
             crate.isUp = false;
 
             // Wait for the animation to finish before making it available again
@@ -449,6 +598,7 @@
 
           crateElements.forEach((crate) => {
             crate.recordEl.classList.remove("pop");
+            crate.recordEl.classList.remove("good-record", "bad-record");
             clearTimeout(crate.popTimeout);
             crate.isUp = false;
             crate.isAnimating = false;
@@ -462,6 +612,8 @@
             updateScoreboard();
             checkGameOver();
           }, 1000);
+
+          requestAnimationFrame(gameLoop); // Start the game loop here
         };
 
         const cancelGame = () => {
