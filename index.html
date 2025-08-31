@@ -10,7 +10,6 @@
       href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
       rel="stylesheet"
     />
-
     <link rel="shortcut icon" href="./favicon.png" />
 
     <style>
@@ -394,24 +393,6 @@
         font-size: 1.1em;
       }
 
-      /* table {
-        border-collapse: collapse;
-        background-color: var(--wall-color);
-        border-radius: 10px;
-        caption {
-          margin-bottom: 0.5em;
-        }
-      }
-      td {
-        border: 1px solid var(--bg-color);
-        padding: 10px;
-      }
-      thead {
-        font-weight: 600;
-        font-size: 0.8em;
-        background-color: #ffffff20;
-      } */
-
       address {
         font-style: normal;
         font-size: 13px;
@@ -456,32 +437,6 @@
     <footer>
       <address>&copy; J. Ferguson <span id="currentYear"></span></address>
     </footer>
-
-    <!-- <table>
-      <caption>
-        Ideas
-      </caption>
-      <thead>
-        <td>Name</td>
-        <td>Description</td>
-      </thead>
-      <tr>
-        <td>Grails</td>
-        <td>Records that give you a 10x</td>
-      </tr>
-      <tr>
-        <td>Empty sleeves</td>
-        <td>Give you a penalty</td>
-      </tr>
-      <tr>
-        <td>Wrong record in sleeve</td>
-        <td>Give you a penalty</td>
-      </tr>
-      <tr>
-        <td>Bonus time</td>
-        <td>...</td>
-      </tr>
-    </table> -->
 
     <script>
       window.onload = function () {
@@ -543,6 +498,7 @@
 
         const generateCrates = () => {
           cratesGrid.innerHTML = "";
+          crateElements = [];
           for (let i = 0; i < 4; i++) {
             // Container for both record and crate-box
             const crateContainer = document.createElement("div");
@@ -579,9 +535,10 @@
               imgEl: img,
               coverEl: crateCover,
               coverImgEl: coverImg,
-              isLocked: false, // New state to track if a crate is locked
+              isLocked: false,
               type: null,
               popTimeout: null,
+              popId: null, // NEW: track current pop cycle
             });
           }
         };
@@ -594,6 +551,39 @@
             crate.coverImgEl.src = `./assets/covers-bad/cover-bad-${paddedIndex}.webp`;
             crate.coverEl.classList.add("bad-record");
           });
+        };
+
+        // NEW: reveal only after image is decoded, with popId guard
+        const revealWhenReady = (crate, selectedRecord, hideAfter = 1000) => {
+          const popId = Symbol();
+          crate.popId = popId;
+          crate.type = selectedRecord.type;
+          crate.imgEl.src = selectedRecord.imageUrl;
+
+          const reveal = () => {
+            if (!gameActive || crate.popId !== popId) return; // guard
+            crate.recordEl.classList.add(
+              `${selectedRecord.type}-record`,
+              "pop"
+            );
+            crate.popTimeout = setTimeout(() => {
+              hideRecord(crate);
+            }, hideAfter);
+          };
+
+          if (crate.imgEl.decode) {
+            crate.imgEl.decode().then(reveal).catch(reveal);
+          } else if (crate.imgEl.complete) {
+            reveal();
+          } else {
+            const onDone = () => {
+              crate.imgEl.removeEventListener("load", onDone);
+              crate.imgEl.removeEventListener("error", onDone);
+              reveal();
+            };
+            crate.imgEl.addEventListener("load", onDone);
+            crate.imgEl.addEventListener("error", onDone);
+          }
         };
 
         const popRecord = () => {
@@ -634,17 +624,8 @@
             };
           }
 
-          crate.type = selectedRecord.type;
-          crate.imgEl.src = selectedRecord.imageUrl;
-
-          crate.recordEl.classList.add(`${selectedRecord.type}-record`);
-          crate.recordEl.classList.add("pop");
-
-          // Hide the record after a certain amount of time
-          const hideAfter = 1000;
-          crate.popTimeout = setTimeout(() => {
-            hideRecord(crate);
-          }, hideAfter);
+          // CHANGED: wait for image to be ready before showing
+          revealWhenReady(crate, selectedRecord, 1000);
         };
 
         const hideRecord = (crate) => {
@@ -739,6 +720,7 @@
             crate.recordEl.classList.remove("good-record", "bad-record");
             clearTimeout(crate.popTimeout);
             crate.isLocked = false; // Reset lock state
+            crate.popId = null; // NEW: cancel any pending reveals
           });
 
           lastPopTime = performance.now();
@@ -761,6 +743,7 @@
             clearTimeout(crate.popTimeout);
             crate.recordEl.classList.remove("pop");
             crate.isLocked = false;
+            crate.popId = null; // NEW: cancel any pending reveals
           });
         };
 
