@@ -251,35 +251,41 @@
         const recordTypes = {
           GOOD: [
             {
-              imageUrl:
-                "https://i.discogs.com/7e-Yp0jaXs_7SXKUY1r8BfldLRV0Fp5jCg6-CHKTt88/rs:fit/g:sm/q:90/h:598/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5NDcw/NjUtMTM2MzcyNzgz/Ni00NTExLmpwZWc.jpeg",
+              imageUrl: "./assets/covers-good/cover-good-01.jpg",
               type: "good",
             },
             {
-              imageUrl:
-                "https://i.discogs.com/4KGxYVziYcVCSU_2T8LcYF2VYieKxlNZGkHwg-NU5eQ/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2NTc3/NzYtMTU5NjQzMDMy/MC04Nzk2LmpwZWc.jpeg",
+              imageUrl: "./assets/covers-good/cover-good-02.jpg",
               type: "good",
             },
           ],
           BAD: [
             {
-              imageUrl:
-                "https://i.discogs.com/PJHa3CJ8mYhUV7IKROpcAm-tFW_Yo1v8XkMd0pcaDqs/rs:fit/g:sm/q:90/h:382/w:385/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY2MjY0/NzMtMTQ1MzU0Mzgz/NS0zODc0LmpwZWc.jpeg",
+              imageUrl: "./assets/covers-bad/cover-bad-01.jpg",
               type: "bad",
             },
             {
-              imageUrl:
-                "https://i.discogs.com/vtcdNJh30_OInLK_9YN7d2i1cbqB3f_85CwOskl2Q60/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc2MTQz/NTMtMTU5MDE2Mjc3/OC02MjIyLmpwZWc.jpeg",
+              imageUrl: "./assets/covers-bad/cover-bad-02.jpg",
               type: "bad",
             },
             {
-              imageUrl:
-                "https://i.discogs.com/ZYUtn1HUtptOxq1Fuc8VbJQp6oZrFz5xUc7e0HP284U/rs:fit/g:sm/q:90/h:571/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ3NDIx/MjEtMTM3NDA1NTI1/Mi0yMjA4LmpwZWc.jpeg",
+              imageUrl: "./assets/covers-bad/cover-bad-03.jpg",
               type: "bad",
             },
             {
-              imageUrl:
-                "https://i.discogs.com/9N9xmmD5iiup9qKmTK-yV0iOYQq2xxvm81WfSvhh3eU/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU2OTM5/NTctMTY3NzA1MTE5/Ni00MTM1LmpwZWc.jpeg",
+              imageUrl: "./assets/covers-bad/cover-bad-04.jpg",
+              type: "bad",
+            },
+            {
+              imageUrl: "./assets/covers-bad/cover-bad-05.jpg",
+              type: "bad",
+            },
+            {
+              imageUrl: "./assets/covers-bad/cover-bad-06.jpg",
+              type: "bad",
+            },
+            {
+              imageUrl: "./assets/covers-bad/cover-bad-07.jpg",
               type: "bad",
             },
           ],
@@ -402,8 +408,8 @@
         const handleClick = (e) => {
           if (!gameActive) return;
 
-          const clickedRecord = e.currentTarget;
-          const index = parseInt(clickedRecord.dataset.index, 10);
+          const clickedCrate = e.currentTarget;
+          const index = Array.from(cratesGrid.children).indexOf(clickedCrate);
           const crate = crateElements[index];
 
           if (crate.isUp) {
@@ -487,7 +493,7 @@
         generateCrates();
         setCrateCovers();
         crateElements.forEach((crate) => {
-          crate.recordEl.addEventListener("click", handleClick);
+          crate.crateEl.addEventListener("click", handleClick);
         });
         gameLoop(0); // Start the animation loop
       };
