@@ -11,8 +11,6 @@
       rel="stylesheet"
     />
 
-    <link rel="shortcut icon" href="./favicon.png" />
-
     <style>
       :root {
         --bg-color: #b8b098;
@@ -549,8 +547,6 @@
               coverEl: crateCover,
               coverImgEl: coverImg,
               isUp: false,
-              isAnimating: false,
-              isLocked: false,
               type: null,
               popTimeout: null,
             });
@@ -570,9 +566,11 @@
         const popRecord = () => {
           if (!gameActive) return;
 
+          // Only pop a record into an available crate
           const availableSpots = crateElements.filter(
-            (crate) => !crate.isUp && !crate.isLocked
+            (crate) => !crate.recordEl.classList.contains("pop")
           );
+
           if (availableSpots.length === 0) return;
 
           const randomIndex = Math.floor(Math.random() * availableSpots.length);
@@ -600,8 +598,6 @@
             };
           }
 
-          crate.isUp = true;
-          crate.isLocked = true;
           crate.type = selectedRecord.type;
           crate.imgEl.src = selectedRecord.imageUrl;
 
@@ -616,25 +612,21 @@
         };
 
         const hideRecord = (crate) => {
-          if (!crate.isUp) return;
-
-          // Remove classes to trigger the hide animation
-          crate.recordEl.classList.remove("pop");
-          crate.recordEl.classList.remove("good-record", "bad-record");
-          crate.isUp = false;
-
-          // Listen for the animation to finish before unlocking the spot
+          // Add a listener that waits for the transition to finish
           const onTransitionEnd = () => {
-            crate.isLocked = false;
+            // Cleanup classes and listener after the animation is complete
+            crate.recordEl.classList.remove("pop");
+            crate.recordEl.classList.remove("good-record", "bad-record");
             crate.recordEl.removeEventListener(
               "transitionend",
               onTransitionEnd
             );
           };
 
-          crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
-            once: true,
-          });
+          crate.recordEl.addEventListener("transitionend", onTransitionEnd);
+
+          // Remove pop class to start the hide animation
+          crate.recordEl.classList.remove("pop");
         };
 
         const checkGameOver = () => {
@@ -673,8 +665,11 @@
           const index = Array.from(cratesGrid.children).indexOf(clickedCrate);
           const crate = crateElements[index];
 
-          if (crate.isUp) {
+          // Ensure the crate is currently "popped" and active
+          if (crate.recordEl.classList.contains("pop")) {
+            // Cancel any pending hide timeouts
             clearTimeout(crate.popTimeout);
+
             if (crate.type === "good") {
               score++;
             } else if (crate.type === "bad") {
@@ -682,6 +677,8 @@
             }
             updateScoreboard();
             checkGameOver();
+
+            // Trigger the hide animation and let the event listener handle the cleanup
             hideRecord(crate);
           }
         };
