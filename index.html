@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Diggin' time!</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <style>
+      :root {
+        --bg-color: #222;
+        --text-color: #e0e0e0;
+        --container-bg: #2e2e4a;
+
+        /* Customizable sizing and spacing */
+        --crate-size: 150px;
+      }
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+      }
+      .game-container {
+        display: flex;
+        background-color: #ffffff10;
+        border-radius: 20px;
+        flex-direction: column;
+        align-items: center;
+        padding: 30px;
+        gap: 15px;
+      }
+      h1 {
+        font-size: 2em;
+        text-align: center;
+        margin: 0 0 0.5em;
+      }
+      .score-board {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        font-size: 1em;
+        text-align: center;
+      }
+      .crates-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0 15px;
+        touch-action: none;
+      }
+      .crate-container {
+        position: relative;
+        width: var(--crate-size);
+        height: calc(var(--crate-size) * 1.75);
+        overflow: hidden;
+      }
+      .crate-box {
+        position: absolute;
+        width: 100%;
+        aspect-ratio: 1;
+        background: #00000040 url(./assets/crate.png) no-repeat top left;
+        background-size: 100%;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+      }
+      .record {
+        position: absolute;
+        top: 5%;
+        left: 5%;
+        width: 90%;
+        aspect-ratio: 1;
+        cursor: pointer;
+        transition: transform 0.3s ease-out;
+        transform: translateY(80%);
+        pointer-events: none;
+        box-shadow: 0 0 5px #00000020;
+        z-index: 1;
+        &:after {
+          content: "";
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          height: 45%;
+          background: linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(0, 0, 0, 0.5) 40%,
+            rgba(0, 0, 0, 0.5) 100%
+          );
+        }
+      }
+      .record.pop {
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+      .record-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .crate-cover {
+        position: absolute;
+        bottom: 0;
+        left: 5%;
+        width: 90%;
+        aspect-ratio: 1;
+        z-index: 5;
+        transform: translateY(0);
+      }
+      .buttons-container {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+      }
+      button {
+        font-size: 1em;
+        padding: 0.5em 1em;
+        background: #555;
+        color: var(--text-color);
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      /* button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      }
+      button:active {
+        transform: translateY(0);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+      } */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        backdrop-filter: blur(10px);
+      }
+      .modal-content {
+        background-color: #ffffff20;
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 20px;
+        text-align: center;
+        transform: scale(0.8);
+        animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+      }
+      @keyframes bounceIn {
+        0% {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+      .modal-content h2 {
+        font-size: 1.2em;
+        margin: 0 0 10px;
+      }
+      .modal-content p {
+        font-size: 1em;
+        margin: 0;
+      }
+      .modal-content button {
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="startModal" class="modal" style="display: flex">
+      <div class="modal-content">
+        <h1>It's diggin' time!</h1>
+        <p>Grab the good stuff and avoid the crap</p>
+        <button id="startButton">Start</button>
+      </div>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+      <div class="score-board">
+        <span>Good stuff: <span id="score">0</span></span>
+        <span>Crap: <span id="misses">0</span></span>
+      </div>
+      <div class="crates-grid">
+        <!-- Crates will be dynamically generated here -->
+      </div>
+      <div class="buttons-container">
+        <button id="cancelGameButton">End game</button>
+      </div>
+    </div>
+
+    <div id="gameOverModal" class="modal">
+      <div class="modal-content">
+        <h2>Game Over!</h2>
+        <p>Your Final Score: <span id="finalScore">0</span></p>
+        <button id="restartButton">Play Again</button>
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        // --- Game Setup ---
+        const startModal = document.getElementById("startModal");
+        const gameContainer = document.getElementById("gameContainer");
+        const startButton = document.getElementById("startButton");
+        const restartButton = document.getElementById("restartButton");
+        const cancelGameButton = document.getElementById("cancelGameButton");
+
+        const gameOverModal = document.getElementById("gameOverModal");
+        const finalScoreSpan = document.getElementById("finalScore");
+        const scoreSpan = document.getElementById("score");
+        const missesSpan = document.getElementById("misses");
+        const cratesGrid = document.querySelector(".crates-grid");
+
+        let score = 0;
+        let misses = 0;
+        let gameActive = false;
+        let lastPopTime = 0;
+        let popInterval = 1000; // Time in milliseconds between pops
+        let crateElements = [];
+
+        const recordTypes = {
+          GOOD: [
+            {
+              imageUrl:
+                "https://i.discogs.com/7e-Yp0jaXs_7SXKUY1r8BfldLRV0Fp5jCg6-CHKTt88/rs:fit/g:sm/q:90/h:598/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTM5NDcw/NjUtMTM2MzcyNzgz/Ni00NTExLmpwZWc.jpeg",
+              type: "good",
+            },
+            {
+              imageUrl:
+                "https://i.discogs.com/4KGxYVziYcVCSU_2T8LcYF2VYieKxlNZGkHwg-NU5eQ/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTE2NTc3/NzYtMTU5NjQzMDMy/MC04Nzk2LmpwZWc.jpeg",
+              type: "good",
+            },
+          ],
+          BAD: [
+            {
+              imageUrl:
+                "https://i.discogs.com/PJHa3CJ8mYhUV7IKROpcAm-tFW_Yo1v8XkMd0pcaDqs/rs:fit/g:sm/q:90/h:382/w:385/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTY2MjY0/NzMtMTQ1MzU0Mzgz/NS0zODc0LmpwZWc.jpeg",
+              type: "bad",
+            },
+            {
+              imageUrl:
+                "https://i.discogs.com/vtcdNJh30_OInLK_9YN7d2i1cbqB3f_85CwOskl2Q60/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTc2MTQz/NTMtMTU5MDE2Mjc3/OC02MjIyLmpwZWc.jpeg",
+              type: "bad",
+            },
+            {
+              imageUrl:
+                "https://i.discogs.com/ZYUtn1HUtptOxq1Fuc8VbJQp6oZrFz5xUc7e0HP284U/rs:fit/g:sm/q:90/h:571/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTQ3NDIx/MjEtMTM3NDA1NTI1/Mi0yMjA4LmpwZWc.jpeg",
+              type: "bad",
+            },
+            {
+              imageUrl:
+                "https://i.discogs.com/9N9xmmD5iiup9qKmTK-yV0iOYQq2xxvm81WfSvhh3eU/rs:fit/g:sm/q:90/h:600/w:600/czM6Ly9kaXNjb2dz/LWRhdGFiYXNlLWlt/YWdlcy9SLTU2OTM5/NTctMTY3NzA1MTE5/Ni00MTM1LmpwZWc.jpeg",
+              type: "bad",
+            },
+          ],
+        };
+
+        const generateCrates = () => {
+          cratesGrid.innerHTML = "";
+          for (let i = 0; i < 4; i++) {
+            // Container for both record and crate-box
+            const crateContainer = document.createElement("div");
+            crateContainer.className = "crate-container";
+
+            // The record div
+            const record = document.createElement("div");
+            record.className = "record";
+            record.dataset.index = i;
+
+            const img = document.createElement("img");
+            img.className = "record-img";
+            record.appendChild(img);
+
+            // The static bad record cover
+            const crateCover = document.createElement("div");
+            crateCover.className = "crate-cover";
+            const coverImg = document.createElement("img");
+            coverImg.className = "record-img";
+            crateCover.appendChild(coverImg);
+
+            // The crate box div (layered on top)
+            const crateBox = document.createElement("div");
+            crateBox.className = "crate-box";
+
+            crateContainer.appendChild(record);
+            crateContainer.appendChild(crateCover);
+            crateContainer.appendChild(crateBox);
+            cratesGrid.appendChild(crateContainer);
+
+            crateElements.push({
+              crateEl: crateContainer,
+              recordEl: record,
+              imgEl: img,
+              coverEl: crateCover,
+              coverImgEl: coverImg,
+              isUp: false,
+              isAnimating: false,
+              type: null,
+              popTimeout: null,
+            });
+          }
+        };
+
+        const setCrateCovers = () => {
+          const badRecords = recordTypes.BAD;
+          crateElements.forEach((crate) => {
+            const randomBadRecordIndex = Math.floor(
+              Math.random() * badRecords.length
+            );
+            crate.coverImgEl.src = badRecords[randomBadRecordIndex].imageUrl;
+          });
+        };
+
+        const popRecord = (timestamp) => {
+          if (!gameActive) return;
+
+          const availableSpots = crateElements.filter(
+            (crate) => !crate.isUp && !crate.isAnimating
+          );
+          if (availableSpots.length === 0) return;
+
+          const randomIndex = Math.floor(Math.random() * availableSpots.length);
+          const crate = availableSpots[randomIndex];
+
+          const isGoodRecord = Math.random() > 0.7;
+          const recordSet = isGoodRecord ? recordTypes.GOOD : recordTypes.BAD;
+          const randomRecordIndex = Math.floor(
+            Math.random() * recordSet.length
+          );
+          const selectedRecord = recordSet[randomRecordIndex];
+
+          crate.isUp = true;
+          crate.isAnimating = true; // Mark as animating
+          crate.type = selectedRecord.type;
+          crate.imgEl.src = selectedRecord.imageUrl;
+
+          crate.recordEl.classList.add("pop");
+
+          // Hide the record after it's been up for a while
+          const hideAfter = 500;
+          crate.popTimeout = setTimeout(() => {
+            if (crate.isUp) {
+              crate.recordEl.classList.remove("pop");
+              crate.isUp = false;
+              // Wait for the animation to finish before making it available again
+              setTimeout(() => {
+                crate.isAnimating = false;
+              }, 300); // Corresponds to the transition duration in CSS
+            }
+          }, hideAfter);
+        };
+
+        const checkGameOver = () => {
+          if (misses >= 5) {
+            gameActive = false;
+            showGameOver();
+          }
+        };
+
+        const showGameOver = () => {
+          finalScoreSpan.textContent = score;
+          gameOverModal.style.display = "flex";
+        };
+
+        const updateScoreboard = () => {
+          scoreSpan.textContent = score;
+          missesSpan.textContent = misses;
+        };
+
+        const handleClick = (e) => {
+          if (!gameActive) return;
+
+          const clickedRecord = e.currentTarget;
+          const index = parseInt(clickedRecord.dataset.index, 10);
+          const crate = crateElements[index];
+
+          if (crate.isUp) {
+            clearTimeout(crate.popTimeout);
+            if (crate.type === "good") {
+              score++;
+            } else if (crate.type === "bad") {
+              misses++;
+            }
+
+            crate.recordEl.classList.remove("pop");
+            crate.isUp = false;
+
+            // Wait for the animation to finish before making it available again
+            setTimeout(() => {
+              crate.isAnimating = false;
+            }, 500); // Corresponds to the transition duration in CSS
+
+            updateScoreboard();
+            checkGameOver();
+          }
+        };
+
+        const startGame = () => {
+          startModal.style.display = "none";
+          gameContainer.style.display = "flex";
+
+          score = 0;
+          misses = 0;
+          gameActive = true;
+          popInterval = 1000;
+          updateScoreboard();
+          gameOverModal.style.display = "none";
+
+          crateElements.forEach((crate) => {
+            crate.recordEl.classList.remove("pop");
+            clearTimeout(crate.popTimeout);
+            crate.isUp = false;
+            crate.isAnimating = false;
+            crate.type = null;
+          });
+
+          lastPopTime = performance.now();
+        };
+
+        const cancelGame = () => {
+          gameActive = false;
+          gameContainer.style.display = "none";
+          startModal.style.display = "flex";
+          crateElements.forEach((crate) => {
+            clearTimeout(crate.popTimeout);
+            crate.recordEl.classList.remove("pop");
+            crate.isUp = false;
+            crate.isAnimating = false;
+          });
+        };
+
+        const gameLoop = (timestamp) => {
+          if (gameActive && timestamp - lastPopTime > popInterval) {
+            popRecord(timestamp);
+            lastPopTime = timestamp;
+            popInterval = Math.max(500, popInterval - 10);
+          }
+          requestAnimationFrame(gameLoop);
+        };
+
+        // --- Event Listeners ---
+        startButton.addEventListener("click", startGame);
+        restartButton.addEventListener("click", startGame);
+
+        cancelGameButton.addEventListener("click", cancelGame);
+
+        // --- Initial setup ---
+        generateCrates();
+        setCrateCovers();
+        crateElements.forEach((crate) => {
+          crate.recordEl.addEventListener("click", handleClick);
+        });
+        gameLoop(0); // Start the animation loop
+      };
+    </script>
+  </body>
+</html>
