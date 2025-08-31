@@ -11,6 +11,8 @@
       rel="stylesheet"
     />
 
+    <link rel="shortcut icon" href="./favicon.png" />
+
     <style>
       :root {
         --bg-color: #b8b098;
@@ -259,7 +261,7 @@
         width: 94%;
         aspect-ratio: 1;
         cursor: pointer;
-        transition: transform 0.3s ease-in-out;
+        transition: transform 0.3s ease-in;
         transform: translateY(80%);
         box-shadow: 0 0 5px #00000020;
         z-index: 1;
@@ -310,6 +312,7 @@
       .record.pop {
         pointer-events: auto;
         transform: translateY(5%);
+        transition: transform 0.3s ease-out;
       }
       .record-img {
         width: 100%;
@@ -564,11 +567,11 @@
           });
         };
 
-        const popRecord = (timestamp) => {
+        const popRecord = () => {
           if (!gameActive) return;
 
           const availableSpots = crateElements.filter(
-            (crate) => !crate.isUp && !crate.isAnimating && !crate.isLocked
+            (crate) => !crate.isUp && !crate.isLocked
           );
           if (availableSpots.length === 0) return;
 
@@ -598,30 +601,40 @@
           }
 
           crate.isUp = true;
-          crate.isAnimating = true; // Mark as animating
-          crate.isLocked = true; // Mark as locked
+          crate.isLocked = true;
           crate.type = selectedRecord.type;
           crate.imgEl.src = selectedRecord.imageUrl;
 
-          // Add the appropriate class based on the record type
           crate.recordEl.classList.add(`${selectedRecord.type}-record`);
-
           crate.recordEl.classList.add("pop");
 
           // Hide the record after it's been up for a while
           const hideAfter = 1000;
           crate.popTimeout = setTimeout(() => {
-            if (crate.isUp) {
-              crate.recordEl.classList.remove("pop");
-              crate.recordEl.classList.remove("good-record", "bad-record");
-              crate.isUp = false;
-              // Wait for the animation to finish before making it available again
-              setTimeout(() => {
-                crate.isAnimating = false;
-                crate.isLocked = false;
-              }, 300); // Corresponds to the transition duration in CSS
-            }
+            hideRecord(crate);
           }, hideAfter);
+        };
+
+        const hideRecord = (crate) => {
+          if (!crate.isUp) return;
+
+          // Remove classes to trigger the hide animation
+          crate.recordEl.classList.remove("pop");
+          crate.recordEl.classList.remove("good-record", "bad-record");
+          crate.isUp = false;
+
+          // Listen for the animation to finish before unlocking the spot
+          const onTransitionEnd = () => {
+            crate.isLocked = false;
+            crate.recordEl.removeEventListener(
+              "transitionend",
+              onTransitionEnd
+            );
+          };
+
+          crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
+            once: true,
+          });
         };
 
         const checkGameOver = () => {
@@ -667,19 +680,9 @@
             } else if (crate.type === "bad") {
               misses++;
             }
-
-            crate.recordEl.classList.remove("pop");
-            crate.recordEl.classList.remove("good-record", "bad-record");
-            crate.isUp = false;
-
-            // Wait for the animation to finish before making it available again
-            setTimeout(() => {
-              crate.isAnimating = false;
-              crate.isLocked = false;
-            }, 500); // Corresponds to the transition duration in CSS
-
             updateScoreboard();
             checkGameOver();
+            hideRecord(crate);
           }
         };
 
@@ -731,7 +734,7 @@
 
         const gameLoop = (timestamp) => {
           if (gameActive && timestamp - lastPopTime > popInterval) {
-            popRecord(timestamp);
+            popRecord();
             lastPopTime = timestamp;
             popInterval = Math.max(500, popInterval - 10);
           }
