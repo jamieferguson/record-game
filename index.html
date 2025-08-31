@@ -546,7 +546,7 @@
               imgEl: img,
               coverEl: crateCover,
               coverImgEl: coverImg,
-              isUp: false,
+              isAvailable: true, // New state to track if a crate is free
               type: null,
               popTimeout: null,
             });
@@ -566,15 +566,18 @@
         const popRecord = () => {
           if (!gameActive) return;
 
-          // Only pop a record into an available crate
+          // Find an available crate using the new `isAvailable` flag
           const availableSpots = crateElements.filter(
-            (crate) => !crate.recordEl.classList.contains("pop")
+            (crate) => crate.isAvailable
           );
 
           if (availableSpots.length === 0) return;
 
           const randomIndex = Math.floor(Math.random() * availableSpots.length);
           const crate = availableSpots[randomIndex];
+
+          // Immediately mark the crate as unavailable
+          crate.isAvailable = false;
 
           const isGoodRecord = Math.random() < goodRecordProbability;
           let selectedRecord;
@@ -604,7 +607,7 @@
           crate.recordEl.classList.add(`${selectedRecord.type}-record`);
           crate.recordEl.classList.add("pop");
 
-          // Hide the record after it's been up for a while
+          // Hide the record after a certain amount of time
           const hideAfter = 1000;
           crate.popTimeout = setTimeout(() => {
             hideRecord(crate);
@@ -612,20 +615,25 @@
         };
 
         const hideRecord = (crate) => {
-          // Add a listener that waits for the transition to finish
+          // Listen for the transition to finish before making the spot available
           const onTransitionEnd = () => {
-            // Cleanup classes and listener after the animation is complete
-            crate.recordEl.classList.remove("pop");
             crate.recordEl.classList.remove("good-record", "bad-record");
             crate.recordEl.removeEventListener(
               "transitionend",
               onTransitionEnd
             );
+            crate.isAvailable = true; // Mark as available only after the animation
           };
 
-          crate.recordEl.addEventListener("transitionend", onTransitionEnd);
+          // Check if the listener is already attached, to prevent multiple listeners
+          if (!crate.recordEl.getAttribute("data-listener")) {
+            crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
+              once: true,
+            });
+            crate.recordEl.setAttribute("data-listener", "true");
+          }
 
-          // Remove pop class to start the hide animation
+          // Remove the pop class to start the hide animation
           crate.recordEl.classList.remove("pop");
         };
 
@@ -639,7 +647,6 @@
         const showGameOver = () => {
           clearInterval(timerId);
           // Set the final score message based on the score
-
           if (score === 0 && misses === 0) {
             finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop!</h2> <p>You didn't find anything.</p>`;
           } else if (score === 0 && misses >= 1) {
@@ -665,9 +672,8 @@
           const index = Array.from(cratesGrid.children).indexOf(clickedCrate);
           const crate = crateElements[index];
 
-          // Ensure the crate is currently "popped" and active
+          // Check if the crate is currently "popped" and the user is clicking on the record
           if (crate.recordEl.classList.contains("pop")) {
-            // Cancel any pending hide timeouts
             clearTimeout(crate.popTimeout);
 
             if (crate.type === "good") {
@@ -698,10 +704,7 @@
             crate.recordEl.classList.remove("pop");
             crate.recordEl.classList.remove("good-record", "bad-record");
             clearTimeout(crate.popTimeout);
-            crate.isUp = false;
-            crate.isAnimating = false;
-            crate.isLocked = false;
-            crate.type = null;
+            crate.isAvailable = true; // Reset availability
           });
 
           lastPopTime = performance.now();
@@ -723,9 +726,7 @@
           crateElements.forEach((crate) => {
             clearTimeout(crate.popTimeout);
             crate.recordEl.classList.remove("pop");
-            crate.isUp = false;
-            crate.isAnimating = false;
-            crate.isLocked = false;
+            crate.isAvailable = true;
           });
         };
 
