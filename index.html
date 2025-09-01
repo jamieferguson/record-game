@@ -130,7 +130,7 @@
         letter-spacing: -0.02em;
         margin: 0 0 0.45em;
         text-shadow: 0 4px 0 #00000010, 0 10px 10px #00000020,
-          0 20px 40px #00000050;
+          0 10px 40px #00000030;
         color: var(--title-color);
         transform: rotate(-3deg);
       }
@@ -249,6 +249,37 @@
         }
         &:nth-of-type(2) .crate-box {
           background-image: url(./assets/crate-plastic--blue.webp);
+          /* TAPE */
+          &:before {
+            content: "";
+            z-index: 2;
+            width: 9px;
+            height: 18px;
+            background-color: #f0efe380;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%) rotate(-2deg);
+            top: 33%;
+            box-shadow: 0 1px 2px #00000030;
+          }
+          /* SIGN */
+          &:after {
+            content: "records: $2 each";
+            color: #000000aa;
+            position: absolute;
+            background-color: #e6dda6dd;
+            background: linear-gradient(349deg, #f0efe3 0%, #e6dda6dd 100%);
+            box-shadow: 2px 3px 2px #00000060;
+            padding: 1em;
+            font-weight: 600;
+            left: 50%;
+            transform: translateX(-50%) rotate(-4deg);
+            top: 37%;
+            border-radius: 3px;
+            font-size: 0.8em;
+            text-align: center;
+            z-index: 1;
+          }
         }
         &:nth-of-type(3) .crate-box {
           background-image: url(./assets/crate-plastic--green.webp);
@@ -365,7 +396,8 @@
           left: 0;
           right: 0;
           top: 20%;
-          background-color: #00000060;
+          z-index: 1;
+          background-color: #00000070;
         }
       }
 
@@ -394,7 +426,7 @@
       }
       @keyframes bounceIn {
         0% {
-          transform: scale(0.8) rotate(-120deg);
+          transform: scale(0.9) rotate(-70deg);
           opacity: 0;
         }
         100% {
@@ -420,15 +452,31 @@
     </style>
   </head>
   <body>
-    <div id="startModal" class="modal" style="display: flex">
+    <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time!</h1>
         <p>
-          The op-shop is closing in 30 seconds &mdash; just enough time for a
-          quick look through the crates.
+          The op-shop is about to close &mdash; you have just 30 seconds to look
+          through the crates.
         </p>
         <p>You can only afford 5 records, so choose wisely!</p>
         <button class="btn" id="startButton">Let's go!</button>
+      </div>
+    </div>
+    <div id="giveUpModal" class="modal" role="dialog">
+      <div class="modal-content">
+        <h2>Giving up already?</h2>
+        <p>
+          I don't blame you, the pickings are pretty woeful, but if you don't
+          have a proper look you might regret it!
+        </p>
+        <button class="btn" id="anotherGoButton">Give it another go</button>
+      </div>
+    </div>
+    <div id="gameOverModal" class="modal" role="dialog">
+      <div class="modal-content">
+        <div id="finalScoreMessage"></div>
+        <button class="btn" id="restartButton">Want to try again?</button>
       </div>
     </div>
     <main>
@@ -448,20 +496,6 @@
       </div>
     </main>
 
-    <div id="giveUpModal" class="modal">
-      <div class="modal-content">
-        <h2>Giving up already?</h2>
-        <p>I don't blame you, the pickings are pretty woeful.</p>
-        <p>But if you don't have a proper look you might regret it!</p>
-        <button class="btn" id="anotherGoButton">Give it another go</button>
-      </div>
-    </div>
-    <div id="gameOverModal" class="modal">
-      <div class="modal-content">
-        <div id="finalScoreMessage"></div>
-        <button class="btn" id="restartButton">Want to try again?</button>
-      </div>
-    </div>
     <footer>
       <address>&copy; J. Ferguson <span id="currentYear"></span></address>
     </footer>
@@ -674,7 +708,7 @@
         const showGameOver = () => {
           clearInterval(timerId);
           if (score === 0 && misses === 0) {
-            finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop!</h2> <p>You didn't find anything.</p>`;
+            finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop!</h2> <p>You didn't find a thing worth buying.</p>`;
           } else if (score === 0 && misses >= 1) {
             finalScoreMessage.innerHTML = `<h2>What a waste of money!</h2> <p>All you bought was crap.</p>`;
           } else if (score === 1) {
