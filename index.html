@@ -27,16 +27,18 @@
 
         --title-color: #ffdf8f;
 
-        /* Customizable sizing and spacing */
         --crate-size: 145px;
         @media (width> 500px) {
           --crate-size: 200px;
         }
+        @media (width> 1000px) {
+          --crate-size: 220px;
+        }
         @media (height> 1000px) {
-          --crate-size: 240px;
+          --crate-size: 250px;
         }
         @media (height> 1200px) {
-          --crate-size: 280px;
+          --crate-size: 300px;
         }
       }
       html * {
@@ -89,7 +91,7 @@
         justify-content: space-between;
         align-items: center;
         width: 100%;
-        font-size: 0.9em;
+        font-size: 0.8em;
         margin-bottom: 10px;
         text-align: center;
       }
@@ -113,12 +115,12 @@
         border-radius: 20px;
         flex-direction: column;
         align-items: center;
-        padding: 20px 10px 40px;
+        padding: 10px 10px 40px;
         gap: 0;
         box-shadow: 0 0 60px #00000020;
         backdrop-filter: blur(10px);
         @media (width>500px) {
-          padding-inline: 20px;
+          padding: 20px 20px 40px;
         }
       }
 
@@ -128,20 +130,21 @@
         font-family: "Bagel Fat One", "Inter", sans-serif;
         line-height: 0.73;
         letter-spacing: -0.02em;
-        margin: 0 0 0.45em;
+        margin: 0 auto 0.45em;
         text-shadow: 0 4px 0 #00000010, 0 10px 10px #00000020,
           0 10px 40px #00000030;
         color: var(--title-color);
         transform: rotate(-3deg);
       }
 
-      h1,
-      h2 {
-        font-size: 5em;
-      }
-
       h1 {
         text-align: center;
+        font-size: 5.5em;
+      }
+
+      h2 {
+        font-size: 4.5em;
+        max-width: 7ch;
       }
 
       p {
@@ -289,10 +292,6 @@
         }
       }
 
-      /* #startModal {
-        display: none !important;
-      } */
-
       .crate-box {
         position: absolute;
         width: 100%;
@@ -327,7 +326,7 @@
           bottom: 0;
           left: 0;
           right: 0;
-          height: 45%;
+          height: 55%;
           background: linear-gradient(
             180deg,
             rgba(0, 0, 0, 0) 0%,
@@ -449,6 +448,75 @@
         font-size: 13px;
         opacity: 0.5;
       }
+
+      #finalScoreTitle {
+        z-index: 1;
+      }
+
+      #finalScoreCovers:not(:empty) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1em;
+        margin-top: -1em;
+        transform: rotate(-2deg);
+
+        .picked-record {
+          box-shadow: 2px 2px 2px #00000060;
+          transform: rotate(-4deg);
+          &:only-of-type {
+            transform: rotate(2deg);
+            img {
+              width: calc(var(--crate-size) * 0.7);
+            }
+          }
+          img {
+            display: block;
+            width: calc(var(--crate-size) * 0.63);
+            height: auto;
+          }
+          &:nth-of-type(2) {
+            margin-left: -10%;
+            transform: rotate(-2deg);
+            top: -2px;
+          }
+          &:nth-of-type(3) {
+            margin-left: -10%;
+            transform: rotate(1deg);
+            top: -5px;
+          }
+          &:nth-of-type(4) {
+            margin-left: -10%;
+            transform: rotate(2deg);
+            top: 1px;
+          }
+          &:nth-of-type(5) {
+            margin-left: -10%;
+            transform: rotate(7deg);
+            top: 10px;
+          }
+        }
+        .good-cover:after {
+          content: "👍";
+          position: absolute;
+          top: -7px;
+          left: -4px;
+          font-size: 2em;
+          line-height: 1;
+          text-shadow: 0 3px 10px #00000090;
+          transform: rotate(-15deg);
+        }
+        .bad-cover:after {
+          content: "👎";
+          position: absolute;
+          top: -7px;
+          left: -4px;
+          font-size: 2em;
+          line-height: 1;
+          text-shadow: 0 3px 10px #00000090;
+          transform: rotate(-12deg);
+        }
+      }
     </style>
   </head>
   <body>
@@ -456,8 +524,8 @@
       <div class="modal-content">
         <h1>It's diggin' time!</h1>
         <p>
-          The op-shop is about to close &mdash; you have just 30 seconds to look
-          through the crates.
+          The op-shop is just about to close &mdash; you have just 30 seconds to
+          look through the crates.
         </p>
         <p>You can only afford 5 records, so choose wisely!</p>
         <button class="btn" id="startButton">Let's go!</button>
@@ -475,6 +543,8 @@
     </div>
     <div id="gameOverModal" class="modal" role="dialog">
       <div class="modal-content">
+        <div id="finalScoreTitle"></div>
+        <div id="finalScoreCovers"></div>
         <div id="finalScoreMessage"></div>
         <button class="btn" id="restartButton">Want to try again?</button>
       </div>
@@ -512,6 +582,8 @@
 
         const gameOverModal = document.getElementById("gameOverModal");
         const giveUpModal = document.getElementById("giveUpModal");
+        const finalScoreTitle = document.getElementById("finalScoreTitle");
+        const finalScoreCovers = document.getElementById("finalScoreCovers");
         const finalScoreMessage = document.getElementById("finalScoreMessage");
         const scoreSpan = document.getElementById("score");
         const missesSpan = document.getElementById("misses");
@@ -524,17 +596,18 @@
         let total = 0;
         let gameActive = false;
         let lastPopTime = 0;
-        let popInterval = 1000; // Time in milliseconds between pops
+        let popInterval = 1000; // Time in ms between pops
         let crateElements = [];
-        let gameTime = 30; // 30 second timer
+        let pickedRecords = [];
+        let gameTime = 30; // 30s timer
         let timerId;
 
-        // Tweak this value to make good records appear more or less often.
+        // Probability of good record
         const goodRecordProbability = 0.2;
 
         const recordTypes = {
           GOOD: 10,
-          BAD: 50,
+          BAD: 51,
         };
 
         const preloadImages = () => {
@@ -565,7 +638,6 @@
             const crateContainer = document.createElement("div");
             crateContainer.className = "crate-container";
 
-            // The record button (click directly on this)
             const record = document.createElement("button");
             record.className = "record";
             record.dataset.index = i;
@@ -574,14 +646,12 @@
             img.className = "record-img";
             record.appendChild(img);
 
-            // Static crate cover
             const crateCover = document.createElement("div");
             crateCover.className = "crate-cover";
             const coverImg = document.createElement("img");
             coverImg.className = "record-img";
             crateCover.appendChild(coverImg);
 
-            // The crate box div (layered on top)
             const crateBox = document.createElement("div");
             crateBox.className = "crate-box";
 
@@ -707,15 +777,41 @@
 
         const showGameOver = () => {
           clearInterval(timerId);
+
+          // reset contents first
+          finalScoreTitle.innerHTML = "";
+          finalScoreMessage.innerHTML = "";
+          finalScoreCovers.innerHTML = "";
+
           if (score === 0 && misses === 0) {
-            finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop!</h2> <p>You didn't find a thing worth buying.</p>`;
+            finalScoreTitle.innerHTML = `<h2>Another typical day in the op-shop!</h2>`;
+            finalScoreMessage.innerHTML = `<p>You didn't find a thing worth buying.</p>`;
+            pickedRecords = [];
           } else if (score === 0 && misses >= 1) {
-            finalScoreMessage.innerHTML = `<h2>What a waste of money!</h2> <p>All you bought was crap.</p>`;
+            finalScoreTitle.innerHTML = `<h2>What a waste of money!</h2>`;
+            finalScoreMessage.innerHTML = `<p>All you bought was crap.</p>`;
           } else if (score === 1) {
-            finalScoreMessage.innerHTML = `<h2>How'd you do?</h2> <p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>`;
+            finalScoreTitle.innerHTML = `<h2>How'd you go?</h2>`;
+            finalScoreMessage.innerHTML = `<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>`;
           } else {
-            finalScoreMessage.innerHTML = `<h2>What a day!</h2> <p>You found ${score} OK records amongst all that crap - shame they're in terrible condition. What did you expect?</p>`;
+            finalScoreTitle.innerHTML = `<h2>What a day!</h2>`;
+            finalScoreMessage.innerHTML = `<p>You found ${score} OK records amongst all that crap - shame they're in terrible condition. What did you expect?</p>`;
           }
+
+          // ✅ Add gallery of picked records
+          if (pickedRecords.length > 0) {
+            pickedRecords.forEach((record) => {
+              const pickedRecord = document.createElement("div");
+              const img = document.createElement("img");
+              pickedRecord.classList =
+                "picked-record " + record.type + "-cover";
+              img.src = record.imageUrl;
+
+              finalScoreCovers.appendChild(pickedRecord);
+              pickedRecord.appendChild(img);
+            });
+          }
+
           gameOverModal.style.display = "flex";
         };
 
@@ -726,12 +822,18 @@
           totalSpan.textContent = score + misses;
         };
 
-        // ✅ FIXED: click handler now bound directly to the record, not the crate container
         const handleRecordClick = (crate) => {
           if (!gameActive) return;
           if (!crate.recordEl.classList.contains("pop")) return;
 
           clearTimeout(crate.popTimeout);
+
+          // ✅ log the record
+          pickedRecords.push({
+            type: crate.type,
+            imageUrl: crate.imgEl.src,
+          });
+
           if (crate.type === "good") {
             score++;
           } else {
@@ -749,6 +851,7 @@
           gameTime = 30;
           gameActive = true;
           popInterval = 1000;
+          pickedRecords = []; // ✅ reset picks
           updateScoreboard();
           gameOverModal.style.display = "none";
           giveUpModal.style.display = "none";
@@ -774,6 +877,7 @@
         const cancelGame = () => {
           gameActive = false;
           clearInterval(timerId);
+          pickedRecords = [];
           giveUpModal.style.display = "flex";
           crateElements.forEach((crate) => {
             clearTimeout(crate.popTimeout);
@@ -802,7 +906,6 @@
         generateCrates();
         setCrateCovers();
 
-        // ✅ FIX: bind clicks to records directly
         crateElements.forEach((crate) => {
           crate.recordEl.addEventListener("click", () =>
             handleRecordClick(crate)
