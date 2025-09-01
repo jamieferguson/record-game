@@ -376,7 +376,7 @@
       }
       @keyframes bounceIn {
         0% {
-          transform: scale(0.8) rotate(-10deg);
+          transform: scale(0.8) rotate(-120deg);
           opacity: 0;
         }
         100% {
@@ -467,11 +467,10 @@
         let timerId;
 
         // Tweak this value to make good records appear more or less often.
-        // A lower number means they appear less often.
         const goodRecordProbability = 0.2;
 
         const recordTypes = {
-          GOOD: 6,
+          GOOD: 8,
           BAD: 39,
         };
 
@@ -490,7 +489,6 @@
               `./assets/covers-bad/cover-bad-${String(i).padStart(2, "0")}.webp`
             );
           }
-
           imagePaths.forEach((path) => {
             const img = new Image();
             img.src = path;
@@ -501,11 +499,10 @@
           cratesGrid.innerHTML = "";
           crateElements = [];
           for (let i = 0; i < 4; i++) {
-            // Container for both record and crate-box
             const crateContainer = document.createElement("div");
             crateContainer.className = "crate-container";
 
-            // The record div
+            // The record button (click directly on this)
             const record = document.createElement("button");
             record.className = "record";
             record.dataset.index = i;
@@ -514,7 +511,7 @@
             img.className = "record-img";
             record.appendChild(img);
 
-            // The static bad record cover
+            // Static crate cover
             const crateCover = document.createElement("div");
             crateCover.className = "crate-cover";
             const coverImg = document.createElement("img");
@@ -539,7 +536,7 @@
               isLocked: false,
               type: null,
               popTimeout: null,
-              popId: null, // NEW: track current pop cycle
+              popId: null,
             });
           }
         };
@@ -554,7 +551,6 @@
           });
         };
 
-        // NEW: reveal only after image is decoded, with popId guard
         const revealWhenReady = (crate, selectedRecord, hideAfter = 1000) => {
           const popId = Symbol();
           crate.popId = popId;
@@ -562,7 +558,7 @@
           crate.imgEl.src = selectedRecord.imageUrl;
 
           const reveal = () => {
-            if (!gameActive || crate.popId !== popId) return; // guard
+            if (!gameActive || crate.popId !== popId) return;
             crate.recordEl.classList.add(
               `${selectedRecord.type}-record`,
               "pop"
@@ -590,34 +586,29 @@
         const popRecord = () => {
           if (!gameActive) return;
 
-          // Find an available crate using the new `isLocked` flag
           const availableSpots = crateElements.filter(
             (crate) => !crate.isLocked
           );
-
           if (availableSpots.length === 0) return;
 
           const randomIndex = Math.floor(Math.random() * availableSpots.length);
           const crate = availableSpots[randomIndex];
 
-          // Immediately lock the crate to prevent another record from popping here
           crate.isLocked = true;
 
           const isGoodRecord = Math.random() < goodRecordProbability;
           let selectedRecord;
           if (isGoodRecord) {
-            const numGoodRecords = recordTypes.GOOD;
             const randomRecordIndex =
-              Math.floor(Math.random() * numGoodRecords) + 1;
+              Math.floor(Math.random() * recordTypes.GOOD) + 1;
             const paddedIndex = String(randomRecordIndex).padStart(2, "0");
             selectedRecord = {
               imageUrl: `./assets/covers-good/cover-good-${paddedIndex}.webp`,
               type: "good",
             };
           } else {
-            const numBadRecords = recordTypes.BAD;
             const randomRecordIndex =
-              Math.floor(Math.random() * numBadRecords) + 1;
+              Math.floor(Math.random() * recordTypes.BAD) + 1;
             const paddedIndex = String(randomRecordIndex).padStart(2, "0");
             selectedRecord = {
               imageUrl: `./assets/covers-bad/cover-bad-${paddedIndex}.webp`,
@@ -625,30 +616,22 @@
             };
           }
 
-          // CHANGED: wait for image to be ready before showing
           revealWhenReady(crate, selectedRecord, 1000);
         };
 
         const hideRecord = (crate) => {
-          // Listen for the transition to finish before making the spot available
           const onTransitionEnd = (e) => {
-            // Ensure we are only listening for the transform property
             if (e.propertyName !== "transform") return;
-
-            // Cleanup classes and listener after the animation is complete
             crate.recordEl.classList.remove("good-record", "bad-record");
             crate.recordEl.removeEventListener(
               "transitionend",
               onTransitionEnd
             );
-            crate.isLocked = false; // Unlock the crate only after the animation
+            crate.isLocked = false;
           };
-
           crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
             once: true,
           });
-
-          // Remove the pop class to start the hide animation
           crate.recordEl.classList.remove("pop");
         };
 
@@ -661,7 +644,6 @@
 
         const showGameOver = () => {
           clearInterval(timerId);
-          // Set the final score message based on the score
           if (score === 0 && misses === 0) {
             finalScoreMessage.innerHTML = `<h2>Another typical day in the op-shop!</h2> <p>You didn't find anything.</p>`;
           } else if (score === 0 && misses >= 1) {
@@ -681,70 +663,59 @@
           totalSpan.textContent = score + misses;
         };
 
-        const handleClick = (e) => {
+        // ✅ FIXED: click handler now bound directly to the record, not the crate container
+        const handleRecordClick = (crate) => {
           if (!gameActive) return;
+          if (!crate.recordEl.classList.contains("pop")) return;
 
-          const clickedCrate = e.currentTarget;
-          const index = Array.from(cratesGrid.children).indexOf(clickedCrate);
-          const crate = crateElements[index];
-
-          // Check if the crate is currently "popped" and the user is clicking on the record
-          if (crate.recordEl.classList.contains("pop")) {
-            clearTimeout(crate.popTimeout);
-
-            if (crate.type === "good") {
-              score++;
-            } else if (crate.type === "bad") {
-              misses++;
-            }
-            updateScoreboard();
-            checkGameOver();
-
-            // Trigger the hide animation and let the event listener handle the cleanup
-            hideRecord(crate);
+          clearTimeout(crate.popTimeout);
+          if (crate.type === "good") {
+            score++;
+          } else {
+            misses++;
           }
+          updateScoreboard();
+          checkGameOver();
+          hideRecord(crate);
         };
 
         const startGame = () => {
           startModal.style.display = "none";
-
           score = 0;
           misses = 0;
-          gameTime = 30; // Reset timer
+          gameTime = 30;
           gameActive = true;
           popInterval = 1000;
           updateScoreboard();
           gameOverModal.style.display = "none";
 
           crateElements.forEach((crate) => {
-            crate.recordEl.classList.remove("pop");
-            crate.recordEl.classList.remove("good-record", "bad-record");
+            crate.recordEl.classList.remove("pop", "good-record", "bad-record");
             clearTimeout(crate.popTimeout);
-            crate.isLocked = false; // Reset lock state
-            crate.popId = null; // NEW: cancel any pending reveals
+            crate.isLocked = false;
+            crate.popId = null;
           });
 
           lastPopTime = performance.now();
-          clearInterval(timerId); // Clear any existing timer
+          clearInterval(timerId);
           timerId = setInterval(() => {
             gameTime--;
             updateScoreboard();
             checkGameOver();
           }, 1000);
 
-          requestAnimationFrame(gameLoop); // Start the game loop here
+          requestAnimationFrame(gameLoop);
         };
 
         const cancelGame = () => {
           gameActive = false;
           clearInterval(timerId);
-
           startModal.style.display = "flex";
           crateElements.forEach((crate) => {
             clearTimeout(crate.popTimeout);
             crate.recordEl.classList.remove("pop");
             crate.isLocked = false;
-            crate.popId = null; // NEW: cancel any pending reveals
+            crate.popId = null;
           });
         };
 
@@ -762,18 +733,21 @@
         restartButton.addEventListener("click", startGame);
         cancelGameButton.addEventListener("click", cancelGame);
 
-        // --- Initial setup ---
         preloadImages();
         generateCrates();
         setCrateCovers();
+
+        // ✅ FIX: bind clicks to records directly
         crateElements.forEach((crate) => {
-          crate.crateEl.addEventListener("click", handleClick);
+          crate.recordEl.addEventListener("click", () =>
+            handleRecordClick(crate)
+          );
         });
-        gameLoop(0); // Start the animation loop
+
+        gameLoop(0);
 
         const yearSpan = document.getElementById("currentYear");
-        const currentYear = new Date().getFullYear();
-        yearSpan.textContent = currentYear;
+        yearSpan.textContent = new Date().getFullYear();
       };
     </script>
   </body>
