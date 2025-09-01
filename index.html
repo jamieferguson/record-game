@@ -3,7 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Diggin' time!</title>
+    <title>Diggin' time! (BETA)</title>
+    <meta
+      name="description"
+      content="An op-shop record hunting simulator of sorts."
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -26,6 +30,9 @@
         --highlight-color-bad: var(--text-color);
 
         --title-color: #ffdf8f;
+
+        --bodyFont: "Inter", sans-serif;
+        --titleFont: "Bagel Fat One", "Inter", sans-serif;
 
         --crate-size: 145px;
         @media (width> 500px) {
@@ -61,7 +68,7 @@
         user-select: none;
         -webkit-user-select: none;
         touch-action: none;
-        font-family: "Inter", sans-serif;
+        font-family: var(--bodyFont);
         font-size: 14px;
         min-height: 100vh;
         @media (width>500px) {
@@ -127,7 +134,7 @@
       h1,
       h2,
       h3 {
-        font-family: "Bagel Fat One", "Inter", sans-serif;
+        font-family: var(--titleFont);
         line-height: 0.73;
         letter-spacing: -0.02em;
         margin: 0 auto 0.45em;
@@ -140,6 +147,26 @@
       h1 {
         text-align: center;
         font-size: 5.5em;
+        span {
+          display: inline-flex;
+          font-family: var(--bodyFont);
+          font-size: 13px;
+          letter-spacing: normal;
+          position: absolute;
+          bottom: -1.3em;
+          left: 70%;
+          transform: translateX(-50%);
+          z-index: 1;
+          line-height: 1;
+          color: var(--text-color);
+          text-shadow: none;
+          background-color: white;
+          padding: 0.35em 0.75em;
+          border-radius: 5em;
+          border: 1px solid #00000030;
+          box-shadow: 0 2px 15px #00000030;
+          text-transform: uppercase;
+        }
       }
 
       h2 {
@@ -518,7 +545,7 @@
   <body>
     <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
-        <h1>It's diggin' time!</h1>
+        <h1>It's diggin' time! <span>Beta</span></h1>
         <p>
           The op-shop is just about to close &mdash; you have just 30 seconds to
           look through the crates.
