@@ -449,10 +449,6 @@
         opacity: 0.5;
       }
 
-      #finalScoreTitle {
-        z-index: 1;
-      }
-
       #finalScoreCovers:not(:empty) {
         display: flex;
         align-items: center;
@@ -791,11 +787,11 @@
             finalScoreTitle.innerHTML = `<h2>What a waste of money!</h2>`;
             finalScoreMessage.innerHTML = `<p>All you bought was crap.</p>`;
           } else if (score === 1) {
-            finalScoreTitle.innerHTML = `<h2>How'd you go?</h2>`;
+            finalScoreTitle.innerHTML = `<h2>So, how'd you go?</h2>`;
             finalScoreMessage.innerHTML = `<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>`;
           } else {
-            finalScoreTitle.innerHTML = `<h2>What a day!</h2>`;
-            finalScoreMessage.innerHTML = `<p>You found ${score} OK records amongst all that crap - shame they're in terrible condition! What did you expect?</p>`;
+            finalScoreTitle.innerHTML = `<h2>Score!</h2>`;
+            finalScoreMessage.innerHTML = `<p>You found ${score} OK records amongst all that crap - pity they're in terrible condition! What did you expect?!</p>`;
           }
 
           // ✅ Add gallery of picked records
