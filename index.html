@@ -462,7 +462,7 @@
         transform: rotate(-2deg);
 
         .picked-record {
-          box-shadow: 2px 2px 2px #00000060;
+          box-shadow: 2px 3px 6px #00000030;
           transform: rotate(-4deg);
           &:only-of-type {
             transform: rotate(2deg);
@@ -795,7 +795,7 @@
             finalScoreMessage.innerHTML = `<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>`;
           } else {
             finalScoreTitle.innerHTML = `<h2>What a day!</h2>`;
-            finalScoreMessage.innerHTML = `<p>You found ${score} OK records amongst all that crap - shame they're in terrible condition. What did you expect?</p>`;
+            finalScoreMessage.innerHTML = `<p>You found ${score} OK records amongst all that crap - shame they're in terrible condition! What did you expect?</p>`;
           }
 
           // ✅ Add gallery of picked records
