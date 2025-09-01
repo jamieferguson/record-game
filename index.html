@@ -32,6 +32,12 @@
         @media (width> 500px) {
           --crate-size: 200px;
         }
+        @media (height> 1000px) {
+          --crate-size: 240px;
+        }
+        @media (height> 1200px) {
+          --crate-size: 280px;
+        }
       }
       html * {
         box-sizing: border-box;
@@ -39,6 +45,8 @@
       }
       body {
         background-color: var(--bg-color);
+        background: var(--bg-color) url(./assets/bg.webp) center no-repeat;
+        background-size: cover;
         color: var(--text-color);
         display: flex;
         gap: 40px;
@@ -53,8 +61,15 @@
         touch-action: none;
         font-family: "Inter", sans-serif;
         font-size: 14px;
+        min-height: 100vh;
         @media (width>500px) {
           font-size: 16px;
+        }
+        @media (width> 1000px) {
+          font-size: 18px;
+        }
+        @media (width> 1200px) {
+          font-size: 20px;
         }
       }
       main {
@@ -88,7 +103,6 @@
           background-color: #ffffff60;
           backdrop-filter: blur(20px);
           padding: 0.5em 0.75em;
-
           font-weight: 600;
         }
       }
@@ -101,18 +115,21 @@
         align-items: center;
         padding: 20px 20px 40px;
         gap: 0;
-        box-shadow: 0 0 40px #00000010;
+        box-shadow: 0 0 60px #00000020;
+        backdrop-filter: blur(10px);
       }
 
       h1,
       h2,
       h3 {
         font-family: "Bagel Fat One", "Inter", sans-serif;
-        line-height: 0.75;
-        margin: 0 0 0.5em;
+        line-height: 0.73;
+        letter-spacing: -0.03em;
+        margin: 0 0 0.35em;
         text-shadow: 0 4px 0 #00000010, 0 10px 10px #00000020,
           0 20px 40px #00000050;
         color: var(--title-color);
+        transform: rotate(-3deg);
       }
 
       h1,
@@ -191,7 +208,7 @@
             180deg,
             rgba(0, 0, 0, 0) 0%,
             rgba(0, 0, 0, 0.2) 63%,
-            rgba(0, 0, 0, 0.2) 64%,
+            rgba(0, 0, 0, 0.1) 64%,
             rgba(0, 0, 0, 0) 100%
           );
         }
@@ -264,6 +281,7 @@
         transition: transform 0.3s ease-in;
         transform: translateY(76%);
         z-index: 1;
+        -webkit-tap-highlight-color: transparent;
         &:after {
           content: "";
           position: absolute;
@@ -279,15 +297,20 @@
             rgba(0, 0, 0, 0.5) 100%
           );
         }
-      }
-      .bad-record {
         &:active {
-          animation: badRecordPress 0.15s ease forwards;
+          opacity: 0.9;
         }
       }
-      .good-record {
-        &:active {
-          animation: goodRecordPress 0.15s ease forwards;
+      @media screen and (pointer: fine) {
+        .bad-record {
+          &:active {
+            animation: badRecordPress 0.15s ease forwards;
+          }
+        }
+        .good-record {
+          &:active {
+            animation: goodRecordPress 0.15s ease forwards;
+          }
         }
       }
       @keyframes badRecordPress {
@@ -295,7 +318,7 @@
           outline: 0 solid var(--highlight-color-bad);
         }
         100% {
-          outline: 15px solid transparent;
+          outline: 10px solid transparent;
           outline-offset: 5px;
         }
       }
@@ -327,6 +350,7 @@
         z-index: 5;
         transform: translateY(0);
         border-radius: 2px;
+
         &:before {
           content: "";
           position: absolute;
@@ -344,7 +368,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.2);
+        background-color: #b8b09850;
         color: var(--text-color--modal);
         display: none;
         justify-content: center;
@@ -353,7 +377,7 @@
         backdrop-filter: blur(20px);
       }
       .modal-content {
-        max-width: 45ch;
+        max-width: 43ch;
         padding: 30px;
         border-radius: 20px;
         padding: 2em 2em 4em;
@@ -368,10 +392,11 @@
           transform: translate(-50%, -50%);
           z-index: -1;
           display: block;
-          width: 100%;
+          width: 110%;
           aspect-ratio: 1;
           border-radius: 50%;
-          box-shadow: inset 0 0 0 12em #00000020;
+          background-color: #00000010;
+          filter: blur(5px);
         }
       }
       @keyframes bounceIn {
@@ -470,7 +495,7 @@
         const goodRecordProbability = 0.2;
 
         const recordTypes = {
-          GOOD: 8,
+          GOOD: 10,
           BAD: 39,
         };
 
@@ -651,7 +676,7 @@
           } else if (score === 1) {
             finalScoreMessage.innerHTML = `<h2>How'd you do?</h2> <p>You actually found something decent, but it has the wrong record inside. Oh well.</p>`;
           } else {
-            finalScoreMessage.innerHTML = `<h2>What a day!</h2> <p>You found ${score} good records, but they're in terrible condition. Oh well.</p>`;
+            finalScoreMessage.innerHTML = `<h2>What a day!</h2> <p>You found ${score} good records - shame they're in terrible condition. Oh well.</p>`;
           }
           gameOverModal.style.display = "flex";
         };
