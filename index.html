@@ -89,7 +89,7 @@
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        transition: opacity 0.25s ease;
+        transition: opacity 0.5s ease;
       }
 
       #background-image {
@@ -98,6 +98,7 @@
         left: 0;
         right: 0;
         bottom: 0;
+        transition: opacity 0.5s ease;
       }
 
       #background-image img {
@@ -221,7 +222,8 @@
       #loader {
         pointer-events: none;
         opacity: 0;
-        transition: opacity 0.25s ease;
+        transition: opacity 0.5s ease, transform 0.5s ease;
+        transform: translate(-50%, -50%) scale(0.2);
       }
 
       .isLoading #loader {
@@ -493,13 +495,16 @@
         backdrop-filter: blur(20px);
       }
       .modal-content {
+        transform: scale(0.9) rotate(-70deg);
+        opacity: 0;
         max-width: 45ch;
         padding: 30px;
         border-radius: 20px;
         padding: 2em 2em 4em;
         text-align: center;
         transform: scale(0.8) rotate(-2deg);
-        animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        animation: bounceIn 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards
+          0.25s;
       }
       @keyframes bounceIn {
         0% {
