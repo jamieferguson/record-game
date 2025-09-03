@@ -235,7 +235,7 @@
         display: inline-flex;
         z-index: 1001;
         padding: 1em;
-        background: #00000010;
+        background: #ffffff50;
         border-radius: 10em;
         margin-inline: auto;
         font-size: 1.3em;
@@ -396,7 +396,7 @@
         width: 92%;
         aspect-ratio: 1;
         cursor: pointer;
-        transition: transform 0.3s ease-in;
+        transition: transform 0.15s cubic-bezier(0.71, -0.36, 0.35, 1.37);
         transform: translateY(76%);
         z-index: 1;
         -webkit-tap-highlight-color: transparent;
@@ -420,7 +420,7 @@
         opacity: 0.9;
       }
 
-      @media screen and (pointer: fine) {
+      /* @media screen and (pointer: fine) {
         .bad-record:active {
           animation: badRecordPress 0.15s ease forwards;
         }
@@ -447,11 +447,11 @@
           outline: 15px solid transparent;
           outline-offset: 5px;
         }
-      }
+      } */
       .record.pop {
         pointer-events: auto;
         transform: translateY(0);
-        transition: transform 0.3s ease-out;
+        transition: transform 0.15s cubic-bezier(0.71, -0.36, 0.35, 1.37);
       }
       .record-img {
         width: 100%;
@@ -748,7 +748,7 @@
         let total = 0;
         let gameActive = false;
         let lastPopTime = 0;
-        let popInterval = 1000; // Time in ms between pops
+        let popInterval = 800; // Time in ms between pops
         let crateElements = [];
         let pickedRecords = [];
         let gameTime = 30; // 30s timer
@@ -981,7 +981,7 @@
           misses = 0;
           gameTime = 30;
           gameActive = true;
-          popInterval = 1000;
+          popInterval = 800;
           pickedRecords = []; // ✅ reset picks
           updateScoreboard();
           gameOverModal.style.display = "none";
