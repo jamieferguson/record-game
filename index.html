@@ -382,9 +382,11 @@
         bottom: 0;
         left: 0;
         z-index: 10;
+        pointer-events: none;
       }
 
       .record {
+        will-change: transform;
         border: none;
         background-color: transparent;
         padding: 0;
@@ -451,7 +453,7 @@
       .record.pop {
         pointer-events: auto;
         transform: translateY(0);
-        transition: transform 0.15s cubic-bezier(0.71, -0.36, 0.35, 1.37);
+        transition: transform 0.25s cubic-bezier(0.71, -0.36, 0.35, 1.37);
       }
       .record-img {
         width: 100%;
@@ -468,6 +470,7 @@
         transform: translateY(0);
         border-radius: 2px;
         background-color: black;
+        pointer-events: none;
       }
 
       .crate-cover img {
@@ -734,6 +737,10 @@
         await preloadAssets();
         document.body.classList.remove("isLoading");
 
+        // Ensure touch devices still synthesise clicks correctly
+        // (overrides CSS `touch-action: none` with a safer value)
+        document.body.style.touchAction = "manipulation";
+
         // --- Game Setup ---
         const startModal = document.getElementById("startModal");
         const gameContainer = document.getElementById("gameContainer");
@@ -758,7 +765,7 @@
         let total = 0;
         let gameActive = false;
         let lastPopTime = 0;
-        let popInterval = 800; // Time in ms between pops
+        let popInterval = 1000; // Time in ms between pops
         let crateElements = [];
         let pickedRecords = [];
         let gameTime = 30; // 30s timer
@@ -769,7 +776,7 @@
 
         const recordTypes = {
           GOOD: 11,
-          BAD: 51,
+          BAD: 51, // match your preloaded assets
         };
 
         const generateCrates = () => {
@@ -782,6 +789,8 @@
             const record = document.createElement("button");
             record.className = "record";
             record.dataset.index = i;
+            // Improve hit testing during transform animations + ensure on top
+            record.setAttribute("aria-label", "Pick record");
 
             const img = document.createElement("img");
             img.className = "record-img";
@@ -789,12 +798,15 @@
 
             const crateCover = document.createElement("div");
             crateCover.className = "crate-cover";
+            // Let taps pass through this overlay
+
             const coverImg = document.createElement("img");
             coverImg.className = "record-img";
             crateCover.appendChild(coverImg);
 
             const crateBox = document.createElement("div");
             crateBox.className = "crate-box";
+            // Let taps pass through the decorative crate
 
             crateContainer.appendChild(record);
             crateContainer.appendChild(crateCover);
@@ -825,7 +837,11 @@
           });
         };
 
-        const revealWhenReady = (crate, selectedRecord, hideAfter = 1000) => {
+        const revealWhenReady = (
+          crate,
+          selectedRecord,
+          hideAfter = popInterval
+        ) => {
           const popId = Symbol();
           crate.popId = popId;
           crate.type = selectedRecord.type;
@@ -890,7 +906,7 @@
             };
           }
 
-          revealWhenReady(crate, selectedRecord, 1000);
+          revealWhenReady(crate, selectedRecord, popInterval);
         };
 
         const hideRecord = (crate) => {
@@ -939,7 +955,7 @@
             finalScoreMessage.innerHTML = `<p>You found ${score} good records amongst all that crap - pity they're in terrible condition! What did you expect?!</p>`;
           }
 
-          // ✅ Add gallery of picked records
+          // Add gallery of picked records
           if (pickedRecords.length > 0) {
             pickedRecords.forEach((record) => {
               const pickedRecord = document.createElement("div");
@@ -963,13 +979,16 @@
           totalSpan.textContent = score + misses;
         };
 
-        const handleRecordClick = (crate) => {
+        const handleRecordClick = (crate, evt) => {
+          if (evt) evt.preventDefault();
           if (!gameActive) return;
           if (!crate.recordEl.classList.contains("pop")) return;
 
+          // Lock immediately so late taps don't get ignored or double counted
+          crate.recordEl.classList.remove("pop");
           clearTimeout(crate.popTimeout);
 
-          // ✅ log the record
+          // Log the record
           pickedRecords.push({
             type: crate.type,
             imageUrl: crate.imgEl.src,
@@ -991,8 +1010,7 @@
           misses = 0;
           gameTime = 30;
           gameActive = true;
-          popInterval = 800;
-          pickedRecords = []; // ✅ reset picks
+          pickedRecords = [];
           updateScoreboard();
           gameOverModal.style.display = "none";
           giveUpModal.style.display = "none";
@@ -1032,7 +1050,7 @@
           if (gameActive && timestamp - lastPopTime > popInterval) {
             popRecord();
             lastPopTime = timestamp;
-            popInterval = Math.max(500, popInterval - 10);
+            // popInterval = Math.max(500, popInterval - 10);
           }
           requestAnimationFrame(gameLoop);
         };
@@ -1047,15 +1065,24 @@
         setCrateCovers();
 
         crateElements.forEach((crate) => {
-          crate.recordEl.addEventListener("click", () =>
-            handleRecordClick(crate)
+          // Use pointerdown for immediate response on touch + mouse
+          crate.recordEl.addEventListener(
+            "pointerdown",
+            (e) => handleRecordClick(crate, e),
+            { passive: false }
           );
+          // Basic keyboard support
+          crate.recordEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleRecordClick(crate, e);
+            }
+          });
         });
 
         gameLoop(0);
 
         const yearSpan = document.getElementById("currentYear");
-        yearSpan.textContent = new Date().getFullYear();
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
       });
     </script>
   </body>
