@@ -695,129 +695,120 @@
     </footer>
 
     <script>
-      // --- Preload assets (images + fonts) ---
-      async function preloadAssets() {
-        const imagePaths = [
-          "./assets/bg.webp",
-          "./assets/crate-plastic.webp",
-          "./assets/crate-plastic--blue.webp",
-          "./assets/crate-plastic--green.webp",
-          "./assets/crate-plastic--red.webp",
-          "./favicon.png",
-        ];
-
-        // Record covers
-        for (let i = 1; i <= 11; i++) {
-          imagePaths.push(
-            `./assets/covers-good/cover-good-${String(i).padStart(2, "0")}.webp`
-          );
-        }
-        for (let i = 1; i <= 51; i++) {
-          imagePaths.push(
-            `./assets/covers-bad/cover-bad-${String(i).padStart(2, "0")}.webp`
-          );
-        }
-
-        // Preload images
-        const preloadImage = (src) =>
-          new Promise((resolve) => {
-            const img = new Image();
-            img.onload = resolve;
-            img.onerror = resolve;
-            img.src = src;
-          });
-
-        // Preload fonts
-        const preloadFonts = () => document.fonts.ready;
-
-        await Promise.all([...imagePaths.map(preloadImage), preloadFonts()]);
-      }
-
       document.addEventListener("DOMContentLoaded", async () => {
-        await preloadAssets();
-        document.body.classList.remove("isLoading");
-
-        // Ensure touch devices still synthesise clicks correctly
-        // (overrides CSS `touch-action: none` with a safer value)
-        document.body.style.touchAction = "manipulation";
-
-        // --- Game Setup ---
-        const startModal = document.getElementById("startModal");
-        const gameContainer = document.getElementById("gameContainer");
-        const startButton = document.getElementById("startButton");
-        const restartButton = document.getElementById("restartButton");
-        const anotherGoButton = document.getElementById("anotherGoButton");
-        const cancelGameButton = document.getElementById("cancelGameButton");
-
-        const gameOverModal = document.getElementById("gameOverModal");
-        const giveUpModal = document.getElementById("giveUpModal");
-        const finalScoreTitle = document.getElementById("finalScoreTitle");
-        const finalScoreCovers = document.getElementById("finalScoreCovers");
-        const finalScoreMessage = document.getElementById("finalScoreMessage");
-        const scoreSpan = document.getElementById("score");
-        const missesSpan = document.getElementById("misses");
-        const totalSpan = document.getElementById("total");
-        const timerSpan = document.getElementById("timer");
-        const cratesGrid = document.querySelector(".crates-grid");
-
-        let score = 0;
-        let misses = 0;
-        let total = 0;
-        let gameActive = false;
-        let lastPopTime = 0;
-        let popInterval = 1000; // Time in ms between pops
-        let crateElements = [];
-        let pickedRecords = [];
-        let gameTime = 30; // 30s timer
-        let timerId;
-
-        // Probability of good record - lower is less likely
-        const goodRecordProbability = 0.1;
-
-        const recordTypes = {
-          GOOD: 11,
-          BAD: 51, // match your preloaded assets
+        /* ---------- Preload ---------- */
+        const preloadAssets = async () => {
+          const paths = [
+            "./assets/bg.webp",
+            "./assets/crate-plastic.webp",
+            "./assets/crate-plastic--blue.webp",
+            "./assets/crate-plastic--green.webp",
+            "./assets/crate-plastic--red.webp",
+            "./favicon.png",
+            ...Array.from(
+              { length: 11 },
+              (_, i) =>
+                `./assets/covers-good/cover-good-${String(i + 1).padStart(
+                  2,
+                  "0"
+                )}.webp`
+            ),
+            ...Array.from(
+              { length: 51 },
+              (_, i) =>
+                `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
+                  2,
+                  "0"
+                )}.webp`
+            ),
+          ];
+          const preloadImage = (src) =>
+            new Promise((res) => {
+              const img = new Image();
+              img.onload = res;
+              img.onerror = res;
+              img.src = src;
+            });
+          await Promise.all([...paths.map(preloadImage), document.fonts.ready]);
         };
 
-        const generateCrates = () => {
+        await preloadAssets();
+        document.body.classList.remove("isLoading");
+        document.body.style.touchAction = "manipulation";
+
+        /* ---------- Shortcuts ---------- */
+        const qs = (sel) => document.querySelector(sel);
+        const qid = (id) => document.getElementById(id);
+        const createEl = (tag, cls) => {
+          const el = document.createElement(tag);
+          if (cls) el.className = cls;
+          return el;
+        };
+
+        /* ---------- DOM ---------- */
+        const cratesGrid = qs(".crates-grid");
+        const startModal = qid("startModal");
+        const gameOverModal = qid("gameOverModal");
+        const giveUpModal = qid("giveUpModal");
+        const finalScoreTitle = qid("finalScoreTitle");
+        const finalScoreCovers = qid("finalScoreCovers");
+        const finalScoreMessage = qid("finalScoreMessage");
+
+        const scoreSpan = qid("score");
+        const missesSpan = qid("misses");
+        const totalSpan = qid("total");
+        const timerSpan = qid("timer");
+        const yearSpan = qid("currentYear");
+        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
+
+        const startButton = qid("startButton");
+        const restartButton = qid("restartButton");
+        const anotherGoButton = qid("anotherGoButton");
+        const cancelGameButton = qid("cancelGameButton");
+
+        /* ---------- State ---------- */
+        const RECORD_TYPES = { GOOD: 11, BAD: 51 };
+        const GOOD_CHANCE = 0.1;
+        const POP_INTERVAL = 1000;
+
+        let crateElements = [];
+        let pickedRecords = [];
+        let score = 0,
+          misses = 0,
+          gameTime = 30;
+        let gameActive = false,
+          lastPopTime = 0,
+          timerId;
+
+        /* ---------- Crates ---------- */
+        function generateCrates() {
           cratesGrid.innerHTML = "";
           crateElements = [];
+
           for (let i = 0; i < 4; i++) {
-            const crateContainer = document.createElement("div");
-            crateContainer.className = "crate-container";
+            const container = createEl("div", "crate-container");
 
-            const record = document.createElement("button");
-            record.className = "record";
-            record.dataset.index = i;
-            // Improve hit testing during transform animations + ensure on top
-            record.setAttribute("aria-label", "Pick record");
+            const recordBtn = createEl("button", "record");
+            recordBtn.dataset.index = i;
+            recordBtn.setAttribute("aria-label", "Pick record");
 
-            const img = document.createElement("img");
-            img.className = "record-img";
-            record.appendChild(img);
+            const recordImg = createEl("img", "record-img");
+            recordBtn.appendChild(recordImg);
 
-            const crateCover = document.createElement("div");
-            crateCover.className = "crate-cover";
-            // Let taps pass through this overlay
+            const cover = createEl("div", "crate-cover");
+            const coverImg = createEl("img", "record-img");
+            cover.appendChild(coverImg);
 
-            const coverImg = document.createElement("img");
-            coverImg.className = "record-img";
-            crateCover.appendChild(coverImg);
+            const box = createEl("div", "crate-box");
 
-            const crateBox = document.createElement("div");
-            crateBox.className = "crate-box";
-            // Let taps pass through the decorative crate
-
-            crateContainer.appendChild(record);
-            crateContainer.appendChild(crateCover);
-            crateContainer.appendChild(crateBox);
-            cratesGrid.appendChild(crateContainer);
+            container.append(recordBtn, cover, box);
+            cratesGrid.appendChild(container);
 
             crateElements.push({
-              crateEl: crateContainer,
-              recordEl: record,
-              imgEl: img,
-              coverEl: crateCover,
+              crateEl: container,
+              recordEl: recordBtn,
+              imgEl: recordImg,
+              coverEl: cover,
               coverImgEl: coverImg,
               isLocked: false,
               type: null,
@@ -825,204 +816,154 @@
               popId: null,
             });
           }
-        };
+        }
 
-        const setCrateCovers = () => {
-          const numBadRecords = recordTypes.BAD;
+        function setCrateCovers() {
           crateElements.forEach((crate) => {
-            const randomIndex = Math.floor(Math.random() * numBadRecords) + 1;
-            const paddedIndex = String(randomIndex).padStart(2, "0");
-            crate.coverImgEl.src = `./assets/covers-bad/cover-bad-${paddedIndex}.webp`;
+            const idx = String(
+              Math.floor(Math.random() * RECORD_TYPES.BAD) + 1
+            ).padStart(2, "0");
+            crate.coverImgEl.src = `./assets/covers-bad/cover-bad-${idx}.webp`;
             crate.coverEl.classList.add("bad-record");
           });
-        };
+        }
 
-        const revealWhenReady = (
-          crate,
-          selectedRecord,
-          hideAfter = popInterval
-        ) => {
+        /* ---------- Game Flow ---------- */
+        function revealWhenReady(crate, record, hideAfter = POP_INTERVAL) {
           const popId = Symbol();
           crate.popId = popId;
-          crate.type = selectedRecord.type;
-          crate.imgEl.src = selectedRecord.imageUrl;
+          crate.type = record.type;
+          crate.imgEl.src = record.imageUrl;
 
           const reveal = () => {
             if (!gameActive || crate.popId !== popId) return;
-            crate.recordEl.classList.add(
-              `${selectedRecord.type}-record`,
-              "pop"
-            );
-            crate.popTimeout = setTimeout(() => {
-              hideRecord(crate);
-            }, hideAfter);
+            crate.recordEl.classList.add(`${record.type}-record`, "pop");
+            crate.popTimeout = setTimeout(() => hideRecord(crate), hideAfter);
           };
 
-          if (crate.imgEl.decode) {
-            crate.imgEl.decode().then(reveal).catch(reveal);
-          } else if (crate.imgEl.complete) {
-            reveal();
-          } else {
-            const onDone = () => {
-              crate.imgEl.removeEventListener("load", onDone);
-              crate.imgEl.removeEventListener("error", onDone);
-              reveal();
-            };
-            crate.imgEl.addEventListener("load", onDone);
-            crate.imgEl.addEventListener("error", onDone);
-          }
-        };
+          (crate.imgEl.decode ? crate.imgEl.decode() : Promise.resolve())
+            .then(reveal)
+            .catch(reveal);
+        }
 
-        const popRecord = () => {
+        function popRecord() {
           if (!gameActive) return;
 
-          const availableSpots = crateElements.filter(
-            (crate) => !crate.isLocked
-          );
-          if (availableSpots.length === 0) return;
+          const spots = crateElements.filter((c) => !c.isLocked);
+          if (!spots.length) return;
 
-          const randomIndex = Math.floor(Math.random() * availableSpots.length);
-          const crate = availableSpots[randomIndex];
-
+          const crate = spots[Math.floor(Math.random() * spots.length)];
           crate.isLocked = true;
 
-          const isGoodRecord = Math.random() < goodRecordProbability;
-          let selectedRecord;
-          if (isGoodRecord) {
-            const randomRecordIndex =
-              Math.floor(Math.random() * recordTypes.GOOD) + 1;
-            const paddedIndex = String(randomRecordIndex).padStart(2, "0");
-            selectedRecord = {
-              imageUrl: `./assets/covers-good/cover-good-${paddedIndex}.webp`,
-              type: "good",
-            };
-          } else {
-            const randomRecordIndex =
-              Math.floor(Math.random() * recordTypes.BAD) + 1;
-            const paddedIndex = String(randomRecordIndex).padStart(2, "0");
-            selectedRecord = {
-              imageUrl: `./assets/covers-bad/cover-bad-${paddedIndex}.webp`,
-              type: "bad",
-            };
-          }
+          const isGood = Math.random() < GOOD_CHANCE;
+          const count = RECORD_TYPES[isGood ? "GOOD" : "BAD"];
+          const idx = String(Math.floor(Math.random() * count) + 1).padStart(
+            2,
+            "0"
+          );
 
-          revealWhenReady(crate, selectedRecord, popInterval);
-        };
-
-        const hideRecord = (crate) => {
-          const onTransitionEnd = (e) => {
-            if (e.propertyName !== "transform") return;
-            crate.recordEl.classList.remove("good-record", "bad-record");
-            crate.recordEl.removeEventListener(
-              "transitionend",
-              onTransitionEnd
-            );
-            crate.isLocked = false;
-          };
-          crate.recordEl.addEventListener("transitionend", onTransitionEnd, {
-            once: true,
+          revealWhenReady(crate, {
+            imageUrl: `./assets/covers-${isGood ? "good" : "bad"}/cover-${
+              isGood ? "good" : "bad"
+            }-${idx}.webp`,
+            type: isGood ? "good" : "bad",
           });
-          crate.recordEl.classList.remove("pop");
-        };
+        }
 
-        const checkGameOver = () => {
+        function hideRecord(crate) {
+          crate.recordEl.addEventListener(
+            "transitionend",
+            (e) => {
+              if (e.propertyName !== "transform") return;
+              crate.recordEl.classList.remove("good-record", "bad-record");
+              crate.isLocked = false;
+            },
+            { once: true }
+          );
+          crate.recordEl.classList.remove("pop");
+        }
+
+        function updateScoreboard() {
+          scoreSpan.textContent = score;
+          missesSpan.textContent = misses;
+          totalSpan.textContent = score + misses;
+          timerSpan.textContent = gameTime;
+        }
+
+        function checkGameOver() {
           if (score + misses >= 5 || gameTime <= 0) {
             gameActive = false;
             showGameOver();
           }
-        };
+        }
 
-        const showGameOver = () => {
+        function showGameOver() {
           clearInterval(timerId);
-
-          // reset contents first
           finalScoreTitle.innerHTML = "";
           finalScoreMessage.innerHTML = "";
           finalScoreCovers.innerHTML = "";
 
           if (score === 0 && misses === 0) {
-            finalScoreTitle.innerHTML = `<h2>Another typical day in the op-shop!</h2>`;
-            finalScoreMessage.innerHTML = `<p>You didn't find a thing worth buying.</p>`;
+            finalScoreTitle.innerHTML =
+              "<h2>Another typical day in the op-shop!</h2>";
+            finalScoreMessage.innerHTML =
+              "<p>You didn't find a thing worth buying.</p>";
             pickedRecords = [];
-          } else if (score === 0 && misses >= 1) {
-            finalScoreTitle.innerHTML = `<h2>What a waste of money!</h2>`;
-            finalScoreMessage.innerHTML = `<p>All you bought was crap.</p>`;
+          } else if (score === 0) {
+            finalScoreTitle.innerHTML = "<h2>What a waste of money!</h2>";
+            finalScoreMessage.innerHTML = "<p>All you bought was crap.</p>";
           } else if (score === 1) {
-            finalScoreTitle.innerHTML = `<h2>So, how'd you go?</h2>`;
-            finalScoreMessage.innerHTML = `<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>`;
+            finalScoreTitle.innerHTML = "<h2>So, how'd you go?</h2>";
+            finalScoreMessage.innerHTML =
+              "<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>";
           } else {
-            finalScoreTitle.innerHTML = `<h2>Score?</h2>`;
+            finalScoreTitle.innerHTML = "<h2>Score?</h2>";
             finalScoreMessage.innerHTML = `<p>You found ${score} good records amongst all that crap - pity they're in terrible condition! What did you expect?!</p>`;
           }
 
-          // Add gallery of picked records
-          if (pickedRecords.length > 0) {
-            pickedRecords.forEach((record) => {
-              const pickedRecord = document.createElement("div");
-              const img = document.createElement("img");
-              pickedRecord.classList =
-                "picked-record " + record.type + "-cover";
-              img.src = record.imageUrl;
-
-              finalScoreCovers.appendChild(pickedRecord);
-              pickedRecord.appendChild(img);
-            });
-          }
+          pickedRecords.forEach((r) => {
+            const d = createEl("div", `picked-record ${r.type}-cover`);
+            const img = createEl("img");
+            img.src = r.imageUrl;
+            d.appendChild(img);
+            finalScoreCovers.appendChild(d);
+          });
 
           gameOverModal.style.display = "flex";
-        };
+        }
 
-        const updateScoreboard = () => {
-          scoreSpan.textContent = score;
-          missesSpan.textContent = misses;
-          timerSpan.textContent = gameTime;
-          totalSpan.textContent = score + misses;
-        };
+        function handleRecordClick(crate, e) {
+          e?.preventDefault();
+          if (!gameActive || !crate.recordEl.classList.contains("pop")) return;
 
-        const handleRecordClick = (crate, evt) => {
-          if (evt) evt.preventDefault();
-          if (!gameActive) return;
-          if (!crate.recordEl.classList.contains("pop")) return;
-
-          // Lock immediately so late taps don't get ignored or double counted
           crate.recordEl.classList.remove("pop");
           clearTimeout(crate.popTimeout);
 
-          // Log the record
-          pickedRecords.push({
-            type: crate.type,
-            imageUrl: crate.imgEl.src,
-          });
-
-          if (crate.type === "good") {
-            score++;
-          } else {
-            misses++;
-          }
+          pickedRecords.push({ type: crate.type, imageUrl: crate.imgEl.src });
+          crate.type === "good" ? score++ : misses++;
           updateScoreboard();
           checkGameOver();
           hideRecord(crate);
-        };
+        }
 
-        const startGame = () => {
+        function startGame() {
           startModal.style.display = "none";
           score = 0;
           misses = 0;
           gameTime = 30;
-          gameActive = true;
           pickedRecords = [];
-          updateScoreboard();
+          gameActive = true;
           gameOverModal.style.display = "none";
           giveUpModal.style.display = "none";
 
-          crateElements.forEach((crate) => {
-            crate.recordEl.classList.remove("pop", "good-record", "bad-record");
-            clearTimeout(crate.popTimeout);
-            crate.isLocked = false;
-            crate.popId = null;
+          crateElements.forEach((c) => {
+            c.recordEl.classList.remove("pop", "good-record", "bad-record");
+            clearTimeout(c.popTimeout);
+            c.isLocked = false;
+            c.popId = null;
           });
 
-          lastPopTime = performance.now();
+          updateScoreboard();
           clearInterval(timerId);
           timerId = setInterval(() => {
             gameTime--;
@@ -1030,59 +971,52 @@
             checkGameOver();
           }, 1000);
 
+          lastPopTime = performance.now();
           requestAnimationFrame(gameLoop);
-        };
+        }
 
-        const cancelGame = () => {
+        function cancelGame() {
           gameActive = false;
           clearInterval(timerId);
           pickedRecords = [];
           giveUpModal.style.display = "flex";
-          crateElements.forEach((crate) => {
-            clearTimeout(crate.popTimeout);
-            crate.recordEl.classList.remove("pop");
-            crate.isLocked = false;
-            crate.popId = null;
+          crateElements.forEach((c) => {
+            clearTimeout(c.popTimeout);
+            c.recordEl.classList.remove("pop");
+            c.isLocked = false;
+            c.popId = null;
           });
-        };
+        }
 
-        const gameLoop = (timestamp) => {
-          if (gameActive && timestamp - lastPopTime > popInterval) {
+        function gameLoop(ts) {
+          if (gameActive && ts - lastPopTime > POP_INTERVAL) {
             popRecord();
-            lastPopTime = timestamp;
-            // popInterval = Math.max(500, popInterval - 10);
+            lastPopTime = ts;
           }
           requestAnimationFrame(gameLoop);
-        };
+        }
 
-        // --- Event Listeners ---
-        startButton.addEventListener("click", startGame);
-        restartButton.addEventListener("click", startGame);
-        anotherGoButton.addEventListener("click", startGame);
+        /* ---------- Listeners ---------- */
+        [startButton, restartButton, anotherGoButton].forEach((btn) =>
+          btn.addEventListener("click", startGame)
+        );
         cancelGameButton.addEventListener("click", cancelGame);
 
         generateCrates();
         setCrateCovers();
 
-        crateElements.forEach((crate) => {
-          // Use pointerdown for immediate response on touch + mouse
-          crate.recordEl.addEventListener(
+        crateElements.forEach((c) => {
+          c.recordEl.addEventListener(
             "pointerdown",
-            (e) => handleRecordClick(crate, e),
+            (e) => handleRecordClick(c, e),
             { passive: false }
           );
-          // Basic keyboard support
-          crate.recordEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              handleRecordClick(crate, e);
-            }
+          c.recordEl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" || e.key === " ") handleRecordClick(c, e);
           });
         });
 
         gameLoop(0);
-
-        const yearSpan = document.getElementById("currentYear");
-        if (yearSpan) yearSpan.textContent = new Date().getFullYear();
       });
     </script>
   </body>
