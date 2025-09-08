@@ -56,7 +56,6 @@
         background-color: var(--bg-color);
         color: var(--text-color);
         display: flex;
-        gap: 40px;
         flex-direction: column;
         justify-content: center;
         align-items: center;
@@ -118,7 +117,6 @@
         align-items: center;
         width: 100%;
         font-size: 0.8em;
-        margin-bottom: 10px;
         text-align: center;
       }
       .score-board--inner {
@@ -137,6 +135,7 @@
 
       .game-container {
         display: flex;
+        gap: 10px;
         background-color: var(--wall-color);
         border-radius: 20px;
         flex-direction: column;
@@ -220,6 +219,10 @@
       }
 
       #loader {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: inline-flex;
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.5s ease, transform 0.5s ease;
@@ -228,11 +231,7 @@
 
       .isLoading #loader {
         opacity: 1;
-        position: absolute;
-        top: 50%;
-        left: 50%;
         transform: translate(-50%, -50%);
-        display: inline-flex;
         z-index: 1001;
         padding: 1em;
         background: #ffffff50;
@@ -256,7 +255,7 @@
       .crates-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        gap: 0 10px;
         touch-action: none;
         overflow: hidden;
         padding-inline: 15px;
@@ -621,6 +620,10 @@
         text-shadow: 0 3px 10px #00000090;
         transform: rotate(-12deg);
       }
+
+      footer {
+        margin-top: 40px;
+      }
     </style>
 
     <!-- Google tag (gtag.js) -->
@@ -787,6 +790,8 @@
           lastPopTime = 0,
           timerId;
 
+        let badCovers = [];
+
         /* ---------- Crates ---------- */
         function generateCrates() {
           cratesGrid.innerHTML = "";
@@ -825,12 +830,31 @@
           }
         }
 
+        // New shuffle function
+        function shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+        }
+
+        function generateBadCovers() {
+          badCovers = Array.from(
+            { length: badRecordTotal },
+            (_, i) =>
+              `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
+                2,
+                "0"
+              )}.webp`
+          );
+          shuffleArray(badCovers);
+        }
+
         function setCrateCovers() {
-          crateElements.forEach((crate) => {
-            const idx = String(
-              Math.floor(Math.random() * RECORD_TYPES.BAD) + 1
-            ).padStart(2, "0");
-            crate.coverImgEl.src = `./assets/covers-bad/cover-bad-${idx}.webp`;
+          // Ensure we have enough covers, even if the number of crates changes
+          const coversToUse = badCovers.slice(0, crateElements.length);
+          crateElements.forEach((crate, index) => {
+            crate.coverImgEl.src = coversToUse[index];
             crate.coverEl.classList.add("bad-record");
           });
         }
@@ -1014,6 +1038,7 @@
         cancelGameButton.addEventListener("click", cancelGame);
 
         generateCrates();
+        generateBadCovers();
         setCrateCovers();
 
         crateElements.forEach((c) => {
