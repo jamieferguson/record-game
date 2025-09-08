@@ -700,6 +700,9 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
+        const goodRecordTotal = 11;
+        const badRecordTotal = 90;
+
         /* ---------- Preload ---------- */
         const preloadAssets = async () => {
           const paths = [
@@ -710,7 +713,7 @@
             "./assets/crate-plastic--red.webp",
             "./favicon.png",
             ...Array.from(
-              { length: 11 },
+              { length: goodRecordTotal },
               (_, i) =>
                 `./assets/covers-good/cover-good-${String(i + 1).padStart(
                   2,
@@ -718,7 +721,7 @@
                 )}.webp`
             ),
             ...Array.from(
-              { length: 90 },
+              { length: badRecordTotal },
               (_, i) =>
                 `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
                   2,
@@ -771,7 +774,7 @@
         const cancelGameButton = qid("cancelGameButton");
 
         /* ---------- State ---------- */
-        const RECORD_TYPES = { GOOD: 11, BAD: 70 };
+        const RECORD_TYPES = { GOOD: goodRecordTotal, BAD: badRecordTotal };
         const GOOD_CHANCE = 0.1;
         const POP_INTERVAL = 1000;
 
