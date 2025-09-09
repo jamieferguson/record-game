@@ -165,7 +165,7 @@
 
       h1 {
         text-align: center;
-        font-size: 5.5em;
+        font-size: calc(5.5em + 4vmin);
       }
 
       h1 span {
@@ -190,7 +190,7 @@
       }
 
       h2 {
-        font-size: 4.5em;
+        font-size: calc(4.5em + 1vmin);
         max-width: 7ch;
       }
 
@@ -253,7 +253,7 @@
       .crates-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 0 10px;
+        gap: 0 6px;
         touch-action: none;
         overflow: hidden;
         padding-inline: 15px;
@@ -289,8 +289,8 @@
         content: "";
         position: absolute;
         top: 50%;
-        left: -5px;
-        right: -5px;
+        left: -3px;
+        right: -3px;
         height: 80%;
         z-index: 10;
         background: linear-gradient(
@@ -644,13 +644,13 @@
     <!-- <div id="background-image" aria-hidden="true">
       <img src="./assets/bg.webp" alt="" />
     </div> -->
-    <div id="loader" role="status">Loading the disappointment...</div>
+    <div id="loader" role="status">Preparing the disappointment...</div>
     <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time! <span>Beta</span></h1>
         <p>
-          The op-shop is just about to close &mdash; you have just 30 seconds to
-          look through the crates.
+          The local op-shop is just about to close &mdash; you have just 30
+          seconds to look through the crates.
         </p>
         <p>You can only afford 5 records, so choose wisely!</p>
 
