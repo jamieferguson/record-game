@@ -220,10 +220,10 @@
       }
 
       #loader {
+        display: none;
         position: absolute;
         top: 50%;
         left: 50%;
-        display: inline-flex;
         pointer-events: none;
         opacity: 0;
         transition: opacity 0.5s ease, transform 0.5s ease;
@@ -231,6 +231,7 @@
       }
 
       .isLoading #loader {
+        display: inline-flex;
         opacity: 1;
         transform: translate(-50%, -50%);
         z-index: 1001;
@@ -647,7 +648,7 @@
     <!-- <div id="background-image" aria-hidden="true">
       <img src="./assets/bg.webp" alt="" />
     </div> -->
-    <div id="loader">Loading the disappointment...</div>
+    <div id="loader" role="status">Loading the disappointment...</div>
     <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time! <span>Beta</span></h1>
