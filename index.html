@@ -275,7 +275,7 @@
         content: "";
         position: absolute;
         top: 100%;
-        left: -5px;
+        left: -17px;
         right: -5px;
         height: var(--shelf-height);
         background-color: var(--shelf-color);
@@ -296,17 +296,18 @@
         background: linear-gradient(
           180deg,
           rgba(0, 0, 0, 0) 0%,
-          rgba(0, 0, 0, 0.3) 63%,
-          rgba(0, 0, 0, 0.15) 64%,
+          rgba(0, 0, 0, 0.4) 63%,
+          rgba(0, 0, 0, 0.2) 64%,
           rgba(0, 0, 0, 0) 100%
         );
+        filter: blur(7px);
       }
 
       .crate-container:nth-of-type(odd):after {
         left: -23px;
       }
       .crate-container:nth-of-type(odd):before {
-        left: -20px;
+        left: -13px;
       }
       .crate-container:nth-of-type(odd):after {
         border-radius: 3px 0 0 3px;
@@ -319,7 +320,7 @@
         right: -23px;
       }
       .crate-container:nth-of-type(even):before {
-        right: -20px;
+        right: -13px;
       }
       .crate-container:nth-of-type(even):after {
         border-radius: 0 3px 3px 0;
@@ -961,7 +962,7 @@
               "<p>You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.</p>";
           } else if (goodRecord >= 1) {
             finalScoreTitle.innerHTML = "<h2>Score?</h2>";
-            finalScoreMessage.innerHTML = `<p>You found ${goodRecord} good records amongst all that crap - pity they're in terrible condition! What did you expect?!</p>`;
+            finalScoreMessage.innerHTML = `<p>You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
           }
 
           pickedRecords.forEach((r) => {
