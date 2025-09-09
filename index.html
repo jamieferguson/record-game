@@ -792,6 +792,7 @@
           timerId;
 
         let badCovers = [];
+        let availableBadCovers = []; // New state variable
 
         /* ---------- Crates ---------- */
         function generateCrates() {
@@ -852,7 +853,6 @@
         }
 
         function setCrateCovers() {
-          // Ensure we have enough covers, even if the number of crates changes
           const coversToUse = badCovers.slice(0, crateElements.length);
           crateElements.forEach((crate, index) => {
             crate.coverImgEl.src = coversToUse[index];
@@ -888,17 +888,26 @@
           crate.isLocked = true;
 
           const isGood = Math.random() < GOOD_CHANCE;
-          const count = RECORD_TYPES[isGood ? "GOOD" : "BAD"];
-          const idx = String(Math.floor(Math.random() * count) + 1).padStart(
-            2,
-            "0"
-          );
+          let imageUrl, type;
+
+          if (isGood) {
+            const count = RECORD_TYPES.GOOD;
+            const idx = String(Math.floor(Math.random() * count) + 1).padStart(
+              2,
+              "0"
+            );
+            imageUrl = `./assets/covers-good/cover-good-${idx}.webp`;
+            type = "good";
+          } else {
+            // Select a unique bad cover
+            const idx = Math.floor(Math.random() * availableBadCovers.length);
+            imageUrl = availableBadCovers.splice(idx, 1)[0]; // Remove from the pool
+            type = "bad";
+          }
 
           revealWhenReady(crate, {
-            imageUrl: `./assets/covers-${isGood ? "good" : "bad"}/cover-${
-              isGood ? "good" : "bad"
-            }-${idx}.webp`,
-            type: isGood ? "good" : "bad",
+            imageUrl: imageUrl,
+            type: type,
           });
         }
 
@@ -983,6 +992,8 @@
         }
 
         function startGame() {
+          // NEW: Reset the pool of available bad covers at the start of each game.
+          availableBadCovers = [...badCovers]; // Create a shallow copy
           startModal.style.display = "none";
           goodRecord = 0;
           badRecord = 0;
