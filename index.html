@@ -18,7 +18,7 @@
 
     <style>
       :root {
-        --bg-color: #e1dfd1;
+        --bg-color: #eae9e0;
         --text-color: #333;
         --text-color--modal: var(--text-color);
         --text-color--button: var(--text-color);
@@ -142,7 +142,7 @@
         align-items: center;
         padding: 10px 10px 40px;
         gap: 0;
-        box-shadow: 0 0 60px #00000020;
+        box-shadow: 0 0 100px #00000010;
         backdrop-filter: blur(10px);
         @media (width>500px) {
           padding: 20px 20px 40px;
@@ -470,6 +470,7 @@
         border-radius: 2px;
         background-color: black;
         pointer-events: none;
+        box-shadow: 0 -1px 1px #00000030;
       }
 
       .crate-cover img {
@@ -642,9 +643,9 @@
     </script>
   </head>
   <body class="isLoading">
-    <div id="background-image" aria-hidden="true">
+    <!-- <div id="background-image" aria-hidden="true">
       <img src="./assets/bg.webp" alt="" />
-    </div>
+    </div> -->
     <div id="loader">Loading the disappointment...</div>
     <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
