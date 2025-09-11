@@ -214,16 +214,16 @@
         border-radius: 20px;
         flex-direction: column;
         align-items: center;
-        padding: 10px 10px 40px;
+        padding: 10px 10px 20px;
         gap: 0;
         box-shadow: 0 0 100px #00000010;
         backdrop-filter: blur(10px);
 
         @media (width>500px) {
-          padding: 20px 20px 40px;
+          padding: 20px;
         }
         @media (width>800px) {
-          padding: 30px 30px 40px;
+          padding: 30px;
         }
       }
 
@@ -274,7 +274,25 @@
       }
 
       /* CRATE SHADOW */
-      .crates-row:before {
+
+      .crates-row:after {
+        pointer-events: none;
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 25%;
+        right: 25%;
+        height: 50%;
+        z-index: -1;
+        filter: blur(10px);
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(0, 0, 0, 0.5) 100%
+        );
+      }
+
+      #crates-row-01:before {
         pointer-events: none;
         content: "";
         position: absolute;
@@ -293,21 +311,21 @@
         filter: blur(7px);
       }
 
-      .crates-row:after {
+      #crates-row-02:before {
         pointer-events: none;
         content: "";
         position: absolute;
-        bottom: 0;
-        left: 25%;
-        right: 25%;
-        height: 50%;
+        top: 20%;
+        left: 12px;
+        right: 12px;
+        height: 100%;
         z-index: -1;
         background: linear-gradient(
           180deg,
           rgba(0, 0, 0, 0) 0%,
-          rgba(0, 0, 0, 0.5) 100%
+          rgba(0, 0, 0, 0.3) 100%
         );
-        filter: blur(10px);
+        filter: blur(7px);
       }
 
       .crate-container {
@@ -536,24 +554,15 @@
         width: 100%;
         height: 100%;
         pointer-events: none;
-      }
-
-      #modal-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
         background-color: #e1dfd190;
-        display: flex;
-        z-index: -1;
-        opacity: 0;
         backdrop-filter: blur(20px);
         pointer-events: none;
         transition: opacity 0.5s ease;
+        z-index: -1;
+        opacity: 0;
       }
 
-      #modal-overlay.visible {
+      #modal-container.visible {
         z-index: 1000;
         opacity: 1;
       }
@@ -580,7 +589,7 @@
         text-align: center;
         transform: scale(0.8) rotate(-2deg);
         animation: bounceIn 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards
-          0.25s;
+          0.5s;
         pointer-events: all;
       }
       @keyframes bounceIn {
@@ -734,7 +743,7 @@
       </div>
 
       <div id="crates-container">
-        <div class="crates-row">
+        <div id="crates-row-01" class="crates-row">
           <div id="crate-01" class="crate-container">
             <div class="crate-container--inner"></div>
           </div>
@@ -755,7 +764,7 @@
           </div>
         </div>
         <div class="shelf"></div>
-        <div class="crates-row">
+        <div id="crates-row-02" class="crates-row">
           <div id="crate-03" class="crate-container">
             <div class="crate-container--inner"></div>
             <img
@@ -777,9 +786,7 @@
       <address>&copy; J. Ferguson <span id="currentYear"></span></address>
     </footer>
 
-    <div id="modal-container">
-      <div id="modal-overlay" class="visible"></div>
-
+    <div id="modal-container" class="visible">
       <div id="startModal" class="modal" style="display: flex">
         <div class="modal-content" role="status" aria-live="polite">
           <h1>It's diggin' time! <span>Beta</span></h1>
@@ -874,7 +881,7 @@
         const crateContainerInner = document.querySelectorAll(
           ".crate-container--inner"
         );
-        const modalOverlay = qid("modal-overlay");
+        const modalContainer = qid("modal-container");
         const startModal = qid("startModal");
         const gameOverModal = qid("gameOverModal");
         const giveUpModal = qid("giveUpModal");
@@ -1117,10 +1124,8 @@
             d.appendChild(img);
             finalScoreCovers.appendChild(d);
           });
-          modalOverlay.classList.add("visible");
-          setTimeout(() => {
-            gameOverModal.style.display = "flex";
-          }, 500);
+          modalContainer.classList.add("visible");
+          gameOverModal.style.display = "flex";
         }
 
         function handleRecordClick(crate, e) {
@@ -1146,7 +1151,7 @@
           pickedRecords = [];
           gameActive = true;
           startModal.style.display = "none";
-          modalOverlay.classList.remove("visible");
+          modalContainer.classList.remove("visible");
           gameOverModal.style.display = "none";
           giveUpModal.style.display = "none";
 
@@ -1173,7 +1178,7 @@
           gameActive = false;
           clearInterval(timerId);
           pickedRecords = [];
-          modalOverlay.classList.add("visible");
+          modalContainer.classList.add("visible");
           giveUpModal.style.display = "flex";
           crateElements.forEach((c) => {
             clearTimeout(c.popTimeout);
