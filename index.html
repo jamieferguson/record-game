@@ -250,7 +250,7 @@
         opacity: 0;
       }
 
-      .crates-grid {
+      #crates-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 0 6px;
@@ -265,9 +265,13 @@
 
       .crate-container {
         position: relative;
+        margin-bottom: var(--shelf-height);
+      }
+
+      .crate-container--inner {
+        position: relative;
         width: var(--crate-size);
         height: calc(var(--crate-size) * 1.7);
-        margin-bottom: var(--shelf-height);
       }
 
       .crate-container:after {
@@ -332,37 +336,6 @@
       .crate-container:nth-of-type(2) .crate-box {
         background-image: url(./assets/crate-plastic--blue.webp);
       }
-      /* TAPE */
-      .crate-container:nth-of-type(2) .crate-box:before {
-        content: "";
-        z-index: 2;
-        width: 9px;
-        height: 18px;
-        background-color: #f0efe380;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%) rotate(-2deg);
-        top: 33%;
-        box-shadow: 0 1px 2px #00000030;
-      }
-      /* SIGN */
-      .crate-container:nth-of-type(2) .crate-box:after {
-        content: "records: $2 each";
-        color: #000000aa;
-        position: absolute;
-        background-color: #e6dda6dd;
-        background: linear-gradient(349deg, #f0efe3 0%, #e6dda6dd 100%);
-        box-shadow: 2px 3px 2px #00000060;
-        padding: 1em;
-        font-weight: 600;
-        left: 50%;
-        transform: translateX(-50%) rotate(-4deg);
-        top: 37%;
-        border-radius: 3px;
-        font-size: 0.8em;
-        text-align: center;
-        z-index: 1;
-      }
 
       .crate-container:nth-of-type(3) .crate-box {
         background-image: url(./assets/crate-plastic--green.webp);
@@ -375,12 +348,14 @@
         position: absolute;
         width: 100%;
         aspect-ratio: 1;
-        background: url(./assets/crate-plastic.webp) no-repeat bottom left;
+        background: url(./assets/crate-plastic--orange.webp) no-repeat bottom
+          left;
         background-size: 100% 85%;
         bottom: 0;
         left: 0;
         z-index: 10;
         pointer-events: none;
+        cursor: default;
       }
 
       .record {
@@ -420,34 +395,6 @@
         opacity: 0.9;
       }
 
-      /* @media screen and (pointer: fine) {
-        .bad-record:active {
-          animation: badRecordPress 0.15s ease forwards;
-        }
-
-        .good-record:active {
-          animation: goodRecordPress 0.15s ease forwards;
-        }
-      }
-
-      @keyframes badRecordPress {
-        0% {
-          outline: 0 solid var(--highlight-color-bad);
-        }
-        100% {
-          outline: 10px solid transparent;
-          outline-offset: 5px;
-        }
-      }
-      @keyframes goodRecordPress {
-        0% {
-          outline: 0 solid var(--highlight-color-good);
-        }
-        100% {
-          outline: 15px solid transparent;
-          outline-offset: 5px;
-        }
-      } */
       .record.pop {
         pointer-events: auto;
         transform: translateY(0);
@@ -468,8 +415,8 @@
         transform: translateY(0);
         border-radius: 2px;
         background-color: black;
-        pointer-events: none;
         box-shadow: 0 -1px 1px #00000030;
+        cursor: default;
       }
 
       .crate-cover img {
@@ -485,6 +432,84 @@
         top: 20%;
         z-index: 1;
         background-color: #00000070;
+      }
+
+      .shelf-decoration {
+        position: absolute;
+        z-index: 100;
+      }
+
+      /* SIGN */
+      #decoration--sign {
+        color: #000000aa;
+        position: absolute;
+        background-color: #e6dda6dd;
+        background: linear-gradient(349deg, #f0efe3 0%, #e6dda6dd 100%);
+        box-shadow: 2px 3px 2px #00000060;
+        padding: 1em;
+        font-weight: 600;
+        left: 50%;
+        transform: translateX(-50%) rotate(-4deg);
+        top: 63%;
+        border-radius: 3px;
+        font-size: 0.8em;
+        text-align: center;
+      }
+
+      /* TAPE */
+      #decoration--tape {
+        width: 4%;
+        height: 5%;
+        background-color: #f0efe380;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%) rotate(-2deg);
+        top: 60%;
+        box-shadow: 0 1px 2px #00000030;
+        z-index: 101;
+      }
+
+      #decoration--sign.fall {
+        animation: signFall 0.5s ease-in forwards;
+        box-shadow: none;
+        opacity: 0.9;
+        filter: blur(1px);
+      }
+
+      @keyframes signFall {
+        0% {
+          transform: translateY(0) translateX(-50%) rotate(-2deg);
+        }
+        100% {
+          transform: translateY(900px) translateX(-50%) rotate(60deg);
+        }
+      }
+
+      #decoration--car {
+        width: 35%;
+        left: 16%;
+        bottom: 0;
+      }
+
+      #decoration--car.roll {
+        animation: carRoll 0.5s ease-in-out forwards;
+        filter: blur(1px);
+      }
+
+      @keyframes carRoll {
+        0% {
+          transform: translateX(0);
+        }
+        10% {
+          transform: translateX(-5%);
+        }
+        99% {
+          transform: translateX(700px);
+        }
+        100% {
+          transform: translateX(700px);
+          display: none;
+        }
       }
 
       #modal-overlay {
@@ -537,6 +562,11 @@
           pointer-events: none;
           transform: scale(0.9) rotate(-70deg);
           opacity: 0;
+        }
+        99% {
+          transform: scale(1) rotate(-2deg);
+          opacity: 1;
+          pointer-events: none;
         }
         100% {
           transform: scale(1) rotate(-2deg);
@@ -663,9 +693,6 @@
     </script>
   </head>
   <body class="isLoading">
-    <!-- <div id="background-image" aria-hidden="true">
-      <img src="./assets/bg.webp" alt="" />
-    </div> -->
     <div id="loader" role="status">Preparing the disappointment...</div>
     <div id="modal-overlay" class="visible"></div>
     <div id="startModal" class="modal" role="dialog" style="display: flex">
@@ -713,8 +740,37 @@
           </div>
           <button class="btn" id="cancelGameButton">Give up</button>
         </div>
-        <div class="crates-grid">
-          <!-- Crates will be dynamically generated here -->
+        <div id="crates-grid">
+          <div class="crate-container">
+            <div class="crate-container--inner"></div>
+          </div>
+          <div class="crate-container">
+            <div class="crate-container--inner"></div>
+            <div
+              id="decoration--sign"
+              class="shelf-decoration"
+              aria-hidden="true"
+            >
+              records: $2 each
+            </div>
+            <div
+              class="shelf-decoration"
+              id="decoration--tape"
+              aria-hidden="true"
+            ></div>
+          </div>
+          <div class="crate-container">
+            <div class="crate-container--inner"></div>
+            <img
+              id="decoration--car"
+              class="shelf-decoration"
+              src="./assets/decoration--car.webp"
+              alt=""
+            />
+          </div>
+          <div class="crate-container">
+            <div class="crate-container--inner"></div>
+          </div>
         </div>
       </div>
     </main>
@@ -731,8 +787,8 @@
         /* ---------- Preload ---------- */
         const preloadAssets = async () => {
           const paths = [
-            "./assets/bg.webp",
-            "./assets/crate-plastic.webp",
+            "./assets/decoration--car.webp",
+            "./assets/crate-plastic--orange.webp",
             "./assets/crate-plastic--blue.webp",
             "./assets/crate-plastic--green.webp",
             "./assets/crate-plastic--red.webp",
@@ -778,7 +834,11 @@
         };
 
         /* ---------- DOM ---------- */
-        const cratesGrid = qs(".crates-grid");
+        const cratesGrid = qid(".crates-grid");
+        const crateContainer = qs(".crate-container");
+        const crateContainerInner = document.querySelectorAll(
+          ".crate-container--inner"
+        );
         const modalOverlay = qid("modal-overlay");
         const startModal = qid("startModal");
         const gameOverModal = qid("gameOverModal");
@@ -799,6 +859,9 @@
         const anotherGoButton = qid("anotherGoButton");
         const cancelGameButton = qid("cancelGameButton");
 
+        const decorationCar = qid("decoration--car");
+        const decorationSign = qid("decoration--sign");
+
         /* ---------- State ---------- */
         const RECORD_TYPES = { GOOD: goodRecordTotal, BAD: badRecordTotal };
         const GOOD_CHANCE = 0.1;
@@ -818,28 +881,37 @@
 
         /* ---------- Crates ---------- */
         function generateCrates() {
-          cratesGrid.innerHTML = "";
+          // Select all existing .crate-container elements
+
           crateElements = [];
 
-          for (let i = 0; i < 4; i++) {
-            const container = createEl("div", "crate-container");
+          // Iterate over each container element
+          crateContainerInner.forEach((container, i) => {
+            // Clear any existing content in the container
+            container.innerHTML = "";
 
-            const recordBtn = createEl("button", "record");
+            const recordBtn = document.createElement("button");
+            recordBtn.className = "record";
             recordBtn.dataset.index = i;
             recordBtn.setAttribute("aria-label", "Pick record");
 
-            const recordImg = createEl("img", "record-img");
+            const recordImg = document.createElement("img");
+            recordImg.className = "record-img";
             recordBtn.appendChild(recordImg);
 
-            const cover = createEl("div", "crate-cover");
-            const coverImg = createEl("img", "record-img");
+            const cover = document.createElement("div");
+            cover.className = "crate-cover";
+            const coverImg = document.createElement("img");
+            coverImg.className = "record-img";
             cover.appendChild(coverImg);
 
-            const box = createEl("div", "crate-box");
+            const box = document.createElement("div");
+            box.className = "crate-box";
 
+            // Append the newly created elements to the existing container
             container.append(recordBtn, cover, box);
-            cratesGrid.appendChild(container);
 
+            // Push the new object to the crateElements array
             crateElements.push({
               crateEl: container,
               recordEl: recordBtn,
@@ -851,7 +923,7 @@
               popTimeout: null,
               popId: null,
             });
-          }
+          });
         }
 
         // New shuffle function
@@ -960,6 +1032,24 @@
             showGameOver();
           }
         }
+
+        // DECORATIONS
+        function addAnimationOnInteraction(el, animationClass) {
+          if (!el) return;
+
+          // Desktop hover
+          el.addEventListener("mouseenter", () => {
+            el.classList.add(animationClass);
+          });
+
+          // Touch (mobile / tablet)
+          el.addEventListener("touchstart", () => {
+            el.classList.add(animationClass);
+          });
+        }
+
+        addAnimationOnInteraction(decorationCar, "roll");
+        addAnimationOnInteraction(decorationSign, "fall");
 
         function showGameOver() {
           clearInterval(timerId);
