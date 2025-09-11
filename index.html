@@ -8,7 +8,17 @@
       name="description"
       content="A realistic op-shop record hunting simulator (of sorts). Prepare to be disappointed!"
     />
-    <meta name="theme-color" content="#eae9e0" />
+    <meta
+      name="theme-color"
+      content="#eae9e0"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#eae9e0;"
+      media="(prefers-color-scheme: dark)"
+    />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -173,6 +183,7 @@
         opacity: 0;
         transition: opacity 0.5s ease, transform 0.5s ease;
         transform: translate(-50%, -50%) scale(0.2);
+        text-align: center;
       }
 
       .isLoading #loader {
