@@ -200,18 +200,26 @@
         width: 100%;
         height: 20px;
         border-radius: 50px;
+        border: none;
+        background-color: #00000020;
+        padding: 2px;
       }
 
       #loader progress::-webkit-progress-bar {
-        background-color: #00000020;
+        background-color: transparent;
         border-radius: 50px;
-        padding: 2px;
         overflow: hidden;
       }
 
       #loader progress::-webkit-progress-value {
         background-color: white;
         border-radius: 50px;
+      }
+
+      #loader progress::-moz-progress-bar {
+        background-color: white;
+        border-radius: 50px;
+        border: none;
       }
 
       .isLoading #loader {
