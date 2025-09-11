@@ -36,7 +36,7 @@
 
         --shelf-color: #fdf8f1;
         --shelf-height: 15px;
-        --wall-color: #ffffff20;
+        --wall-color: var(--bg-color);
 
         --highlight-color-good: var(--text-color);
         --highlight-color-bad: var(--text-color);
@@ -210,13 +210,13 @@
       #gameContainer {
         display: flex;
         gap: 10px;
-        background-color: var(--wall-color);
+        /* background-color: var(--wall-color); */
         border-radius: 20px;
         flex-direction: column;
         align-items: center;
         padding: 10px 10px 20px;
         gap: 0;
-        box-shadow: 0 0 100px #00000010;
+        box-shadow: 0 30px 100px #00000020;
         backdrop-filter: blur(10px);
 
         @media (width>500px) {
@@ -228,7 +228,7 @@
       }
 
       /* SCORE */
-      #score-board {
+      #scoreBoard {
         position: sticky;
         z-index: 120;
         top: 20px;
@@ -240,14 +240,14 @@
         font-size: 0.8em;
         text-align: center;
       }
-      #score-board--inner {
+      #scoreBoard--inner {
         display: flex;
         gap: 2px;
         border-radius: 5px;
         overflow: hidden;
       }
 
-      #score-board--inner > span {
+      #scoreBoard--inner > span {
         background-color: #ffffff60;
         backdrop-filter: blur(20px);
         padding: 0.5em 0.75em;
@@ -255,11 +255,11 @@
       }
 
       /* CRATES */
-      #crates-container {
+      #cratesContainer {
         overflow: hidden;
       }
 
-      .crates-row {
+      .cratesRow {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 0 6px;
@@ -275,7 +275,7 @@
 
       /* CRATE SHADOW */
 
-      .crates-row:after {
+      .cratesRow:after {
         pointer-events: none;
         content: "";
         position: absolute;
@@ -292,7 +292,7 @@
         );
       }
 
-      #crates-row-01:before {
+      #cratesRow-01:before {
         pointer-events: none;
         content: "";
         position: absolute;
@@ -311,7 +311,7 @@
         filter: blur(7px);
       }
 
-      #crates-row-02:before {
+      #cratesRow-02:before {
         pointer-events: none;
         content: "";
         position: absolute;
@@ -328,11 +328,11 @@
         filter: blur(7px);
       }
 
-      .crate-container {
+      .crateContainer {
         position: relative;
       }
 
-      .crate-container--inner {
+      .crateContainer--inner {
         position: relative;
         width: var(--crate-size);
         height: calc(var(--crate-size) * 1.7);
@@ -442,11 +442,11 @@
         transition: transform 0.25s cubic-bezier(0.71, -0.36, 0.35, 1.37);
       }
 
-      .crate-container:nth-of-type(odd) .record.pop {
+      .crateContainer:nth-of-type(odd) .record.pop {
         transform: translateY(5%) rotate(1deg);
       }
 
-      .crate-container:nth-of-type(even) .record.pop {
+      .crateContainer:nth-of-type(even) .record.pop {
         transform: translateY(5%) rotate(-1deg);
       }
 
@@ -466,7 +466,7 @@
         border-radius: 3px;
       }
 
-      .shelf-decoration {
+      .shelfDecoration {
         position: absolute;
         z-index: 100;
       }
@@ -502,7 +502,7 @@
         z-index: 101;
       }
 
-      #decoration--sign.fall {
+      /* #decoration--sign.fall {
         animation: signFall 0.5s ease-in forwards 0.5s;
         box-shadow: none;
       }
@@ -518,7 +518,7 @@
           opacity: 0.9;
           filter: blur(1px);
         }
-      }
+      } */
 
       #decoration--car {
         width: 35%;
@@ -549,7 +549,7 @@
 
       /* MODALS */
 
-      #modal-container {
+      #modalContainer {
         position: fixed;
         top: 0;
         left: 0;
@@ -564,7 +564,7 @@
         opacity: 0;
       }
 
-      #modal-container.visible {
+      #modalContainer.visible {
         z-index: 1000;
         opacity: 1;
       }
@@ -581,7 +581,7 @@
         align-items: center;
         z-index: 1001;
       }
-      .modal-content {
+      .modalContent {
         transform: scale(0.9) rotate(-70deg);
         opacity: 0;
         max-width: 45ch;
@@ -612,11 +612,11 @@
         }
       }
 
-      .modal-content p {
+      .modalContent p {
         font-size: 1.3em;
         margin: 0 0 0.5em;
       }
-      .modal-content .btn {
+      .modalContent .btn {
         margin-top: 1em;
         font-size: 1.3em;
         transition: background-color 0.25s, transform 0.25s, opacity 0.25s ease;
@@ -736,48 +736,48 @@
     <div id="loader" role="status">Preparing the disappointment...</div>
 
     <main id="gameContainer">
-      <div id="score-board">
-        <div id="score-board--inner" role="status" aria-live="polite">
+      <div id="scoreBoard">
+        <div id="scoreBoard--inner" role="status" aria-live="polite">
           <span>Total: <span id="total">0</span></span>
           <span>Time left: <span id="timer">30</span>s</span>
         </div>
-        <button class="btn" id="cancelGameButton">Give up</button>
+        <button class="btn" id="cancelGameButton">I give up</button>
       </div>
 
-      <div id="crates-container">
-        <div id="crates-row-01" class="crates-row">
-          <div id="crate-01" class="crate-container">
-            <div class="crate-container--inner"></div>
+      <div id="cratesContainer">
+        <div id="cratesRow-01" class="cratesRow">
+          <div id="crate-01" class="crateContainer">
+            <div class="crateContainer--inner"></div>
           </div>
-          <div id="crate-02" class="crate-container">
-            <div class="crate-container--inner"></div>
+          <div id="crate-02" class="crateContainer">
+            <div class="crateContainer--inner"></div>
             <div
               id="decoration--sign"
-              class="shelf-decoration"
+              class="shelfDecoration"
               aria-hidden="true"
             >
               records: $2 each
             </div>
             <div
-              class="shelf-decoration"
+              class="shelfDecoration"
               id="decoration--tape"
               aria-hidden="true"
             ></div>
           </div>
         </div>
         <div class="shelf"></div>
-        <div id="crates-row-02" class="crates-row">
-          <div id="crate-03" class="crate-container">
-            <div class="crate-container--inner"></div>
+        <div id="cratesRow-02" class="cratesRow">
+          <div id="crate-03" class="crateContainer">
+            <div class="crateContainer--inner"></div>
             <img
               id="decoration--car"
-              class="shelf-decoration"
+              class="shelfDecoration"
               src="./assets/decoration--car.webp"
               alt=""
             />
           </div>
-          <div id="crate-04" class="crate-container">
-            <div class="crate-container--inner"></div>
+          <div id="crate-04" class="crateContainer">
+            <div class="crateContainer--inner"></div>
           </div>
         </div>
         <div class="shelf"></div>
@@ -788,9 +788,9 @@
       <address>&copy; J. Ferguson <span id="currentYear"></span></address>
     </footer>
 
-    <div id="modal-container" class="visible">
+    <div id="modalContainer" class="visible">
       <div id="startModal" class="modal" style="display: flex">
-        <div class="modal-content" role="status" aria-live="polite">
+        <div class="modalContent" role="status" aria-live="polite">
           <h1>It's diggin' time! <span>Beta</span></h1>
           <p>
             The local op-shop is just about to close &mdash; you have just 30
@@ -803,7 +803,7 @@
       </div>
 
       <div id="giveUpModal" class="modal">
-        <div class="modal-content" role="status" aria-live="polite">
+        <div class="modalContent" role="status" aria-live="polite">
           <h2>Giving up already?</h2>
           <p>
             I don't blame you — the pickings are pretty woeful! But if you don't
@@ -814,7 +814,7 @@
       </div>
 
       <div id="gameOverModal" class="modal">
-        <div class="modal-content" role="status" aria-live="polite">
+        <div class="modalContent" role="status" aria-live="polite">
           <div id="finalScoreTitle"></div>
           <div id="finalScoreCovers"></div>
           <div id="finalScoreMessage"></div>
@@ -878,12 +878,12 @@
         };
 
         /* ---------- DOM ---------- */
-        const cratesGrid = qid(".crates-grid");
-        const crateContainer = qs(".crate-container");
+
+        const crateContainer = qs(".crateContainer");
         const crateContainerInner = document.querySelectorAll(
-          ".crate-container--inner"
+          ".crateContainer--inner"
         );
-        const modalContainer = qid("modal-container");
+        const modalContainer = qid("modalContainer");
         const startModal = qid("startModal");
         const gameOverModal = qid("gameOverModal");
         const giveUpModal = qid("giveUpModal");
@@ -923,7 +923,7 @@
 
         /* ---------- Crates ---------- */
         function generateCrates() {
-          // Select all existing .crate-container elements
+          // Select all existing .crateContainer elements
 
           crateElements = [];
 
