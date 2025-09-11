@@ -176,7 +176,7 @@
 
       #loader {
         display: none;
-        position: absolute;
+        position: fixed;
         top: 50%;
         left: 50%;
         pointer-events: none;
@@ -218,9 +218,12 @@
         gap: 0;
         box-shadow: 0 0 100px #00000010;
         backdrop-filter: blur(10px);
-        overflow: hidden;
+
         @media (width>500px) {
           padding: 20px 20px 40px;
+        }
+        @media (width>800px) {
+          padding: 30px 30px 40px;
         }
       }
 
@@ -562,8 +565,17 @@
 
       /* MODALS */
 
-      #modal-overlay {
+      #modal-container {
         position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      #modal-overlay {
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
@@ -583,7 +595,7 @@
       }
 
       .modal {
-        position: fixed;
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
@@ -600,7 +612,7 @@
         max-width: 45ch;
         padding: 30px;
         border-radius: 20px;
-        padding: 2em 2em 4em;
+        padding: 2em 2em 3em;
         text-align: center;
         transform: scale(0.8) rotate(-2deg);
         animation: bounceIn 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards
@@ -748,41 +760,6 @@
   <body class="isLoading">
     <div id="loader" role="status">Preparing the disappointment...</div>
 
-    <div id="modal-overlay" class="visible"></div>
-
-    <div id="startModal" class="modal" style="display: flex">
-      <div class="modal-content" role="status" aria-live="polite">
-        <h1>It's diggin' time! <span>Beta</span></h1>
-        <p>
-          The local op-shop is just about to close &mdash; you have just 30
-          seconds to look through the crates.
-        </p>
-        <p>You can only afford 5 records, so choose wisely!</p>
-
-        <button class="btn" id="startButton">Let's go!</button>
-      </div>
-    </div>
-
-    <div id="giveUpModal" class="modal">
-      <div class="modal-content" role="status" aria-live="polite">
-        <h2>Giving up already?</h2>
-        <p>
-          I don't blame you — the pickings are pretty woeful! But if you don't
-          have a proper look, you might regret it!
-        </p>
-        <button class="btn" id="anotherGoButton">Give it another go</button>
-      </div>
-    </div>
-
-    <div id="gameOverModal" class="modal">
-      <div class="modal-content" role="status" aria-live="polite">
-        <div id="finalScoreTitle"></div>
-        <div id="finalScoreCovers"></div>
-        <div id="finalScoreMessage"></div>
-        <button class="btn" id="restartButton">Want to try again?</button>
-      </div>
-    </div>
-
     <main id="gameContainer">
       <div id="score-board">
         <div id="score-board--inner" role="status" aria-live="polite">
@@ -835,6 +812,43 @@
     <footer>
       <address>&copy; J. Ferguson <span id="currentYear"></span></address>
     </footer>
+
+    <div id="modal-container">
+      <div id="modal-overlay" class="visible"></div>
+
+      <div id="startModal" class="modal" style="display: flex">
+        <div class="modal-content" role="status" aria-live="polite">
+          <h1>It's diggin' time! <span>Beta</span></h1>
+          <p>
+            The local op-shop is just about to close &mdash; you have just 30
+            seconds to look through the crates.
+          </p>
+          <p>You can only afford 5 records, so choose wisely!</p>
+
+          <button class="btn" id="startButton">Let's go!</button>
+        </div>
+      </div>
+
+      <div id="giveUpModal" class="modal">
+        <div class="modal-content" role="status" aria-live="polite">
+          <h2>Giving up already?</h2>
+          <p>
+            I don't blame you — the pickings are pretty woeful! But if you don't
+            have a proper look, you might regret it!
+          </p>
+          <button class="btn" id="anotherGoButton">Give it another go</button>
+        </div>
+      </div>
+
+      <div id="gameOverModal" class="modal">
+        <div class="modal-content" role="status" aria-live="polite">
+          <div id="finalScoreTitle"></div>
+          <div id="finalScoreCovers"></div>
+          <div id="finalScoreMessage"></div>
+          <button class="btn" id="restartButton">Want to try again?</button>
+        </div>
+      </div>
+    </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
