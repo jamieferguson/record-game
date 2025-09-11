@@ -762,7 +762,14 @@
   </head>
   <body class="isLoading">
     <div id="loader" role="status">
-      <progress id="progress-bar" value="0" max="100"></progress>
+      <progress
+        id="progress-bar"
+        value="0"
+        max="100"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="0"
+      ></progress>
       <label for="progress-bar">Preparing the disappointment...</label>
     </div>
 
@@ -859,7 +866,9 @@
         const goodRecordTotal = 11;
         const badRecordTotal = 100;
 
-        /* ---------- Preload ---------- */
+        const progressBar = document.getElementById("progress-bar");
+
+        /* ---------- Preload with Progress ---------- */
         const preloadAssets = async () => {
           const paths = [
             "./assets/decoration--car.webp",
@@ -885,33 +894,39 @@
                 )}.webp`
             ),
           ];
+
+          let loaded = 0;
+          const total = paths.length + 1; // +1 for fonts
+
+          function updateProgress() {
+            const percent = Math.round((loaded / total) * 100);
+            progressBar.value = percent;
+            progressBar.setAttribute("aria-valuenow", percent);
+          }
+
           const preloadImage = (src) =>
             new Promise((res) => {
               const img = new Image();
-              img.onload = res;
-              img.onerror = res;
+              img.onload = img.onerror = () => {
+                loaded++;
+                updateProgress();
+                res();
+              };
               img.src = src;
             });
-          await Promise.all([...paths.map(preloadImage), document.fonts.ready]);
+
+          // preload images + fonts
+          await Promise.all([
+            ...paths.map(preloadImage),
+            document.fonts.ready.then(() => {
+              loaded++;
+              updateProgress();
+            }),
+          ]);
         };
 
         await preloadAssets();
-        const progressBar = document.getElementById("progress-bar");
-
-        function updateProgress(value) {
-          progressBar.value = value;
-        }
-
-        let currentProgress = 0;
-        const interval = setInterval(() => {
-          if (currentProgress < 100) {
-            currentProgress += 10;
-            updateProgress(currentProgress);
-          } else {
-            clearInterval(interval);
-            document.body.classList.remove("isLoading");
-          }
-        }, 500);
+        document.body.classList.remove("isLoading");
         document.body.style.touchAction = "manipulation";
 
         /* ---------- Shortcuts ---------- */
