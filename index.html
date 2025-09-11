@@ -218,15 +218,52 @@
         gap: 0;
         box-shadow: 0 0 100px #00000010;
         backdrop-filter: blur(10px);
+        overflow: hidden;
         @media (width>500px) {
           padding: 20px 20px 40px;
+        }
+      }
+
+      @keyframes lightFlicker {
+        0% {
+          opacity: 1;
+        }
+        2% {
+          opacity: 0.2;
+        }
+        4% {
+          opacity: 1;
+        }
+        6% {
+          opacity: 0.1;
+        }
+        8% {
+          opacity: 1;
+        }
+        10% {
+          opacity: 0.3;
+        }
+        12% {
+          opacity: 1;
+        }
+        14% {
+          opacity: 0.5;
+        }
+        16% {
+          opacity: 1;
+        }
+        18% {
+          opacity: 0.2;
+        }
+        20% {
+          opacity: 1;
         }
       }
 
       /* SCORE */
       #score-board {
         position: sticky;
-        z-index: 100;
+        z-index: 120;
         top: 20px;
         display: flex;
         gap: 10px;
@@ -278,15 +315,32 @@
         left: 12px;
         right: 12px;
         height: 80%;
-        z-index: 10;
+        z-index: -1;
         background: linear-gradient(
           180deg,
           rgba(0, 0, 0, 0) 0%,
-          rgba(0, 0, 0, 0.4) 63%,
+          rgba(0, 0, 0, 0.3) 63%,
           rgba(0, 0, 0, 0.2) 64%,
           rgba(0, 0, 0, 0) 100%
         );
         filter: blur(7px);
+      }
+
+      .crates-row:after {
+        pointer-events: none;
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 25%;
+        right: 25%;
+        height: 50%;
+        z-index: -1;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0) 0%,
+          rgba(0, 0, 0, 0.5) 100%
+        );
+        filter: blur(10px);
       }
 
       .crate-container {
@@ -313,14 +367,19 @@
         cursor: default;
       }
 
-      .crate-container:nth-of-type(2) .crate-box {
+      #crate-01 .crate-box {
+        background-image: url(./assets/crate-plastic--orange.webp);
+      }
+
+      #crate-02 .crate-box {
         background-image: url(./assets/crate-plastic--blue.webp);
       }
 
-      .crate-container:nth-of-type(3) .crate-box {
+      #crate-03 .crate-box {
         background-image: url(./assets/crate-plastic--green.webp);
       }
-      .crate-container:nth-of-type(4) .crate-box {
+
+      #crate-04 .crate-box {
         background-image: url(./assets/crate-plastic--red.webp);
       }
 
@@ -735,10 +794,10 @@
 
       <div id="crates-container">
         <div class="crates-row">
-          <div class="crate-container">
+          <div id="crate-01" class="crate-container">
             <div class="crate-container--inner"></div>
           </div>
-          <div class="crate-container">
+          <div id="crate-02" class="crate-container">
             <div class="crate-container--inner"></div>
             <div
               id="decoration--sign"
@@ -756,7 +815,7 @@
         </div>
         <div class="shelf"></div>
         <div class="crates-row">
-          <div class="crate-container">
+          <div id="crate-03" class="crate-container">
             <div class="crate-container--inner"></div>
             <img
               id="decoration--car"
@@ -765,7 +824,7 @@
               alt=""
             />
           </div>
-          <div class="crate-container">
+          <div id="crate-04" class="crate-container">
             <div class="crate-container--inner"></div>
           </div>
         </div>
@@ -1083,7 +1142,7 @@
           modalOverlay.classList.add("visible");
           setTimeout(() => {
             gameOverModal.style.display = "flex";
-          }, 1000);
+          }, 500);
         }
 
         function handleRecordClick(crate, e) {
