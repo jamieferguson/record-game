@@ -428,8 +428,9 @@
         transform: translateX(-50%) rotate(-4deg);
         top: 63%;
         border-radius: 3px;
-        font-size: 0.8em;
+        font-size: clamp(11px, 2vw, 18px);
         text-align: center;
+        width: 11ch;
       }
 
       /* TAPE */
@@ -678,8 +679,8 @@
 
     <div id="modal-overlay" class="visible"></div>
 
-    <div id="startModal" class="modal" role="dialog" style="display: flex">
-      <div class="modal-content">
+    <div id="startModal" class="modal" style="display: flex">
+      <div class="modal-content" role="status" aria-live="polite">
         <h1>It's diggin' time! <span>Beta</span></h1>
         <p>
           The local op-shop is just about to close &mdash; you have just 30
@@ -691,8 +692,8 @@
       </div>
     </div>
 
-    <div id="giveUpModal" class="modal" role="dialog">
-      <div class="modal-content">
+    <div id="giveUpModal" class="modal">
+      <div class="modal-content" role="status" aria-live="polite">
         <h2>Giving up already?</h2>
         <p>
           I don't blame you — the pickings are pretty woeful! But if you don't
@@ -702,8 +703,8 @@
       </div>
     </div>
 
-    <div id="gameOverModal" class="modal" role="dialog">
-      <div class="modal-content">
+    <div id="gameOverModal" class="modal">
+      <div class="modal-content" role="status" aria-live="polite">
         <div id="finalScoreTitle"></div>
         <div id="finalScoreCovers"></div>
         <div id="finalScoreMessage"></div>
@@ -713,7 +714,7 @@
 
     <main id="gameContainer">
       <div id="score-board">
-        <div id="score-board--inner">
+        <div id="score-board--inner" role="status" aria-live="polite">
           <span>Total: <span id="total">0</span></span>
           <span>Time left: <span id="timer">30</span>s</span>
         </div>
