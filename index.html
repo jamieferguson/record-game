@@ -92,64 +92,6 @@
         transition: opacity 0.5s ease;
       }
 
-      #background-image {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        transition: opacity 0.5s ease;
-      }
-
-      #background-image img {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-
-      .score-board {
-        position: sticky;
-        z-index: 100;
-        top: 20px;
-        display: flex;
-        gap: 10px;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        font-size: 0.8em;
-        text-align: center;
-      }
-      .score-board--inner {
-        display: flex;
-        gap: 2px;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-
-      .score-board--inner > span {
-        background-color: #ffffff60;
-        backdrop-filter: blur(20px);
-        padding: 0.5em 0.75em;
-        font-weight: 600;
-      }
-
-      .game-container {
-        display: flex;
-        gap: 10px;
-        background-color: var(--wall-color);
-        border-radius: 20px;
-        flex-direction: column;
-        align-items: center;
-        padding: 10px 10px 40px;
-        gap: 0;
-        box-shadow: 0 0 100px #00000010;
-        backdrop-filter: blur(10px);
-        @media (width>500px) {
-          padding: 20px 20px 40px;
-        }
-      }
-
       h1,
       h2,
       h3 {
@@ -219,6 +161,8 @@
         transform: scale(1.05);
       }
 
+      /* LOADER */
+
       #loader {
         display: none;
         position: absolute;
@@ -250,51 +194,77 @@
         opacity: 0;
       }
 
-      #crates-grid {
+      /* GAME */
+      #gameContainer {
+        display: flex;
+        gap: 10px;
+        background-color: var(--wall-color);
+        border-radius: 20px;
+        flex-direction: column;
+        align-items: center;
+        padding: 10px 10px 40px;
+        gap: 0;
+        box-shadow: 0 0 100px #00000010;
+        backdrop-filter: blur(10px);
+        @media (width>500px) {
+          padding: 20px 20px 40px;
+        }
+      }
+
+      /* SCORE */
+      #score-board {
+        position: sticky;
+        z-index: 100;
+        top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        font-size: 0.8em;
+        text-align: center;
+      }
+      #score-board--inner {
+        display: flex;
+        gap: 2px;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      #score-board--inner > span {
+        background-color: #ffffff60;
+        backdrop-filter: blur(20px);
+        padding: 0.5em 0.75em;
+        font-weight: 600;
+      }
+
+      /* CRATES */
+      #crates-container {
+        overflow: hidden;
+      }
+
+      .crates-row {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 0 6px;
         touch-action: none;
-        overflow: hidden;
         padding-inline: 15px;
         padding-bottom: 2px;
+        overflow: visible;
+        bottom: -3px;
         @media (width>500px) {
           padding-inline: 25px;
         }
       }
 
-      .crate-container {
-        position: relative;
-        margin-bottom: var(--shelf-height);
-      }
-
-      .crate-container--inner {
-        position: relative;
-        width: var(--crate-size);
-        height: calc(var(--crate-size) * 1.7);
-      }
-
-      .crate-container:after {
-        pointer-events: none;
-        content: "";
-        position: absolute;
-        top: 100%;
-        left: -17px;
-        right: -5px;
-        height: var(--shelf-height);
-        background-color: var(--shelf-color);
-        border-top: 1px solid #ffffff90;
-        border-bottom: 1px solid #00000060;
-        box-shadow: 0 15px 11px #00000010;
-        z-index: 10;
-      }
-      .crate-container:before {
+      /* CRATE SHADOW */
+      .crates-row:before {
         pointer-events: none;
         content: "";
         position: absolute;
         top: 50%;
-        left: -3px;
-        right: -3px;
+        left: 12px;
+        right: 12px;
         height: 80%;
         z-index: 10;
         background: linear-gradient(
@@ -307,41 +277,14 @@
         filter: blur(7px);
       }
 
-      .crate-container:nth-of-type(odd):after {
-        left: -23px;
-      }
-      .crate-container:nth-of-type(odd):before {
-        left: -13px;
-      }
-      .crate-container:nth-of-type(odd):after {
-        border-radius: 3px 0 0 3px;
-      }
-      .crate-container:nth-of-type(odd) .record.pop {
-        transform: translateY(5%) rotate(1deg);
+      .crate-container {
+        position: relative;
       }
 
-      .crate-container:nth-of-type(even):after {
-        right: -23px;
-      }
-      .crate-container:nth-of-type(even):before {
-        right: -13px;
-      }
-      .crate-container:nth-of-type(even):after {
-        border-radius: 0 3px 3px 0;
-      }
-      .crate-container:nth-of-type(even) .record.pop {
-        transform: translateY(5%) rotate(-1deg);
-      }
-
-      .crate-container:nth-of-type(2) .crate-box {
-        background-image: url(./assets/crate-plastic--blue.webp);
-      }
-
-      .crate-container:nth-of-type(3) .crate-box {
-        background-image: url(./assets/crate-plastic--green.webp);
-      }
-      .crate-container:nth-of-type(4) .crate-box {
-        background-image: url(./assets/crate-plastic--red.webp);
+      .crate-container--inner {
+        position: relative;
+        width: var(--crate-size);
+        height: calc(var(--crate-size) * 1.7);
       }
 
       .crate-box {
@@ -357,6 +300,48 @@
         pointer-events: none;
         cursor: default;
       }
+
+      .crate-container:nth-of-type(2) .crate-box {
+        background-image: url(./assets/crate-plastic--blue.webp);
+      }
+
+      .crate-container:nth-of-type(3) .crate-box {
+        background-image: url(./assets/crate-plastic--green.webp);
+      }
+      .crate-container:nth-of-type(4) .crate-box {
+        background-image: url(./assets/crate-plastic--red.webp);
+      }
+
+      .crate-cover {
+        position: absolute;
+        bottom: 0;
+        left: 3%;
+        width: 94%;
+        aspect-ratio: 1;
+        z-index: 5;
+        transform: translateY(0);
+        border-radius: 2px;
+        background-color: black;
+        box-shadow: 0 -1px 1px #00000030;
+        cursor: default;
+      }
+
+      .crate-cover img {
+        opacity: 0.85;
+      }
+
+      .crate-cover:before {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: 20%;
+        z-index: 1;
+        background-color: #00000070;
+      }
+
+      /* RECORDS */
 
       .record {
         will-change: transform;
@@ -400,38 +385,29 @@
         transform: translateY(0);
         transition: transform 0.25s cubic-bezier(0.71, -0.36, 0.35, 1.37);
       }
+
+      .crate-container:nth-of-type(odd) .record.pop {
+        transform: translateY(5%) rotate(1deg);
+      }
+
+      .crate-container:nth-of-type(even) .record.pop {
+        transform: translateY(5%) rotate(-1deg);
+      }
+
       .record-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
       }
-      .crate-cover {
-        position: absolute;
-        bottom: 0;
-        left: 3%;
-        width: 94%;
-        aspect-ratio: 1;
-        z-index: 5;
-        transform: translateY(0);
-        border-radius: 2px;
-        background-color: black;
-        box-shadow: 0 -1px 1px #00000030;
-        cursor: default;
-      }
 
-      .crate-cover img {
-        opacity: 0.85;
-      }
-
-      .crate-cover:before {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        top: 20%;
-        z-index: 1;
-        background-color: #00000070;
+      /* SHELVES */
+      .shelf {
+        height: var(--shelf-height);
+        background-color: var(--shelf-color);
+        border-top: 1px solid #ffffff90;
+        border-bottom: 1px solid #00000060;
+        z-index: 200;
+        border-radius: 3px;
       }
 
       .shelf-decoration {
@@ -512,6 +488,8 @@
         }
       }
 
+      /* MODALS */
+
       #modal-overlay {
         position: fixed;
         top: 0;
@@ -583,11 +561,6 @@
         margin-top: 1em;
         font-size: 1.3em;
         transition: background-color 0.25s, transform 0.25s, opacity 0.25s ease;
-      }
-      address {
-        font-style: normal;
-        font-size: 13px;
-        opacity: 0.5;
       }
 
       #finalScoreCovers:not(:empty) {
@@ -672,8 +645,16 @@
         transform: rotate(-12deg);
       }
 
+      /* FOOTER */
+
       footer {
         margin-top: 40px;
+      }
+
+      address {
+        font-style: normal;
+        font-size: 13px;
+        opacity: 0.5;
       }
     </style>
 
@@ -694,7 +675,9 @@
   </head>
   <body class="isLoading">
     <div id="loader" role="status">Preparing the disappointment...</div>
+
     <div id="modal-overlay" class="visible"></div>
+
     <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time! <span>Beta</span></h1>
@@ -707,6 +690,7 @@
         <button class="btn" id="startButton">Let's go!</button>
       </div>
     </div>
+
     <div id="giveUpModal" class="modal" role="dialog">
       <div class="modal-content">
         <h2>Giving up already?</h2>
@@ -717,6 +701,7 @@
         <button class="btn" id="anotherGoButton">Give it another go</button>
       </div>
     </div>
+
     <div id="gameOverModal" class="modal" role="dialog">
       <div class="modal-content">
         <div id="finalScoreTitle"></div>
@@ -725,22 +710,18 @@
         <button class="btn" id="restartButton">Want to try again?</button>
       </div>
     </div>
-    <main>
-      <div class="game-container" id="gameContainer">
-        <div class="score-board">
-          <div class="score-board--inner">
-            <span style="display: none"
-              >Good: <span id="goodRecord">0</span></span
-            >
-            <span style="display: none"
-              >Crap: <span id="badRecord">0</span></span
-            >
-            <span>Total: <span id="total">0</span></span>
-            <span>Time left: <span id="timer">30</span>s</span>
-          </div>
-          <button class="btn" id="cancelGameButton">Give up</button>
+
+    <main id="gameContainer">
+      <div id="score-board">
+        <div id="score-board--inner">
+          <span>Total: <span id="total">0</span></span>
+          <span>Time left: <span id="timer">30</span>s</span>
         </div>
-        <div id="crates-grid">
+        <button class="btn" id="cancelGameButton">Give up</button>
+      </div>
+
+      <div id="crates-container">
+        <div class="crates-row">
           <div class="crate-container">
             <div class="crate-container--inner"></div>
           </div>
@@ -759,6 +740,9 @@
               aria-hidden="true"
             ></div>
           </div>
+        </div>
+        <div class="shelf"></div>
+        <div class="crates-row">
           <div class="crate-container">
             <div class="crate-container--inner"></div>
             <img
@@ -772,6 +756,7 @@
             <div class="crate-container--inner"></div>
           </div>
         </div>
+        <div class="shelf"></div>
       </div>
     </main>
 
@@ -847,8 +832,6 @@
         const finalScoreCovers = qid("finalScoreCovers");
         const finalScoreMessage = qid("finalScoreMessage");
 
-        const goodRecordSpan = qid("goodRecord");
-        const badRecordSpan = qid("badRecord");
         const totalSpan = qid("total");
         const timerSpan = qid("timer");
         const yearSpan = qid("currentYear");
@@ -1019,8 +1002,6 @@
         }
 
         function updateScoreboard() {
-          goodRecordSpan.textContent = goodRecord;
-          badRecordSpan.textContent = badRecord;
           totalSpan.textContent = goodRecord + badRecord;
           timerSpan.textContent = gameTime;
         }
@@ -1061,21 +1042,21 @@
             finalScoreTitle.innerHTML =
               "<h2>Another typical day in the op-shop!</h2>";
             finalScoreMessage.innerHTML =
-              "<p>You didn't find a thing worth buying, but at least you didn't waste any money on crap.</p>";
+              "<p>You didn't find a thing worth buying, but at least you didn't waste any money.</p>";
             pickedRecords = [];
           } else if (goodRecord === 0) {
             finalScoreTitle.innerHTML = "<h2>What a waste of money!</h2>";
             finalScoreMessage.innerHTML = "<p>All you bought was crap.</p>";
           } else if (goodRecord === 1 && badRecord === 0) {
-            finalScoreTitle.innerHTML = "<h2>So, how'd you go?</h2>";
+            finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
             finalScoreMessage.innerHTML =
               "<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>";
           } else if (goodRecord === 1 && badRecord >= 0) {
-            finalScoreTitle.innerHTML = "<h2>So, how'd you go?</h2>";
+            finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
             finalScoreMessage.innerHTML =
               "<p>You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.</p>";
           } else if (goodRecord >= 1) {
-            finalScoreTitle.innerHTML = "<h2>Score?</h2>";
+            finalScoreTitle.innerHTML = "<h2>Any luck?</h2>";
             finalScoreMessage.innerHTML = `<p>You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
           }
 
