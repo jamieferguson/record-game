@@ -487,19 +487,37 @@
         background-color: #00000070;
       }
 
-      .modal {
+      #modal-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background-color: #e1dfd190;
+        display: flex;
+        z-index: -1;
+        opacity: 0;
+        backdrop-filter: blur(20px);
+        pointer-events: none;
+        transition: opacity 0.5s ease;
+      }
+
+      #modal-overlay.visible {
+        z-index: 1000;
+        opacity: 1;
+      }
+
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         color: var(--text-color--modal);
         display: none;
         justify-content: center;
         align-items: center;
-        z-index: 1000;
-        backdrop-filter: blur(20px);
+        z-index: 1001;
       }
       .modal-content {
         transform: scale(0.9) rotate(-70deg);
@@ -512,6 +530,7 @@
         transform: scale(0.8) rotate(-2deg);
         animation: bounceIn 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards
           0.25s;
+        pointer-events: all;
       }
       @keyframes bounceIn {
         0% {
@@ -648,6 +667,7 @@
       <img src="./assets/bg.webp" alt="" />
     </div> -->
     <div id="loader" role="status">Preparing the disappointment...</div>
+    <div id="modal-overlay" class="visible"></div>
     <div id="startModal" class="modal" role="dialog" style="display: flex">
       <div class="modal-content">
         <h1>It's diggin' time! <span>Beta</span></h1>
@@ -759,6 +779,7 @@
 
         /* ---------- DOM ---------- */
         const cratesGrid = qs(".crates-grid");
+        const modalOverlay = qid("modal-overlay");
         const startModal = qid("startModal");
         const gameOverModal = qid("gameOverModal");
         const giveUpModal = qid("giveUpModal");
@@ -935,6 +956,7 @@
         function checkGameOver() {
           if (goodRecord + badRecord >= 5 || gameTime <= 0) {
             gameActive = false;
+
             showGameOver();
           }
         }
@@ -974,8 +996,10 @@
             d.appendChild(img);
             finalScoreCovers.appendChild(d);
           });
-
-          gameOverModal.style.display = "flex";
+          modalOverlay.classList.add("visible");
+          setTimeout(() => {
+            gameOverModal.style.display = "flex";
+          }, 1000);
         }
 
         function handleRecordClick(crate, e) {
@@ -995,12 +1019,13 @@
         function startGame() {
           // NEW: Reset the pool of available bad covers at the start of each game.
           availableBadCovers = [...badCovers]; // Create a shallow copy
-          startModal.style.display = "none";
           goodRecord = 0;
           badRecord = 0;
           gameTime = 30;
           pickedRecords = [];
           gameActive = true;
+          startModal.style.display = "none";
+          modalOverlay.classList.remove("visible");
           gameOverModal.style.display = "none";
           giveUpModal.style.display = "none";
 
@@ -1027,6 +1052,7 @@
           gameActive = false;
           clearInterval(timerId);
           pickedRecords = [];
+          modalOverlay.classList.add("visible");
           giveUpModal.style.display = "flex";
           crateElements.forEach((c) => {
             clearTimeout(c.popTimeout);
