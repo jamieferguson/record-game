@@ -184,6 +184,34 @@
         transition: opacity 0.5s ease, transform 0.5s ease;
         transform: translate(-50%, -50%) scale(0.2);
         text-align: center;
+        flex-direction: column;
+        gap: 0.5em;
+        align-items: center;
+        width: 80%;
+        max-width: 400px;
+      }
+
+      #loader label {
+        font-size: 0.8em;
+        font-weight: 600;
+      }
+
+      #loader progress {
+        width: 100%;
+        height: 20px;
+        border-radius: 50px;
+      }
+
+      #loader progress::-webkit-progress-bar {
+        background-color: #00000020;
+        border-radius: 50px;
+        padding: 2px;
+        overflow: hidden;
+      }
+
+      #loader progress::-webkit-progress-value {
+        background-color: white;
+        border-radius: 50px;
       }
 
       .isLoading #loader {
@@ -733,7 +761,10 @@
     </script>
   </head>
   <body class="isLoading">
-    <div id="loader" role="status">Preparing the disappointment...</div>
+    <div id="loader" role="status">
+      <progress id="progress-bar" value="0" max="100"></progress>
+      <label for="progress-bar">Preparing the disappointment...</label>
+    </div>
 
     <main id="gameContainer">
       <div id="scoreBoard">
@@ -865,7 +896,22 @@
         };
 
         await preloadAssets();
-        document.body.classList.remove("isLoading");
+        const progressBar = document.getElementById("progress-bar");
+
+        function updateProgress(value) {
+          progressBar.value = value;
+        }
+
+        let currentProgress = 0;
+        const interval = setInterval(() => {
+          if (currentProgress < 100) {
+            currentProgress += 10;
+            updateProgress(currentProgress);
+          } else {
+            clearInterval(interval);
+            document.body.classList.remove("isLoading");
+          }
+        }, 500);
         document.body.style.touchAction = "manipulation";
 
         /* ---------- Shortcuts ---------- */
@@ -902,7 +948,7 @@
         const cancelGameButton = qid("cancelGameButton");
 
         const decorationCar = qid("decoration--car");
-        const decorationSign = qid("decoration--sign");
+        // const decorationSign = qid("decoration--sign");
 
         /* ---------- State ---------- */
         const RECORD_TYPES = { GOOD: goodRecordTotal, BAD: badRecordTotal };
@@ -1089,7 +1135,7 @@
         }
 
         addAnimationOnInteraction(decorationCar, "roll");
-        addAnimationOnInteraction(decorationSign, "fall");
+        // addAnimationOnInteraction(decorationSign, "fall");
 
         function showGameOver() {
           clearInterval(timerId);
