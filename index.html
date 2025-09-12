@@ -818,7 +818,7 @@
       .modalContent {
         transform: scale(0.9) rotate(-70deg);
         opacity: 0;
-        max-width: 45ch;
+        max-width: 40ch;
         padding: 30px;
         border-radius: 20px;
         padding: 2em 2em 3em;
@@ -1101,7 +1101,7 @@
       <div id="startModal" class="modal" style="display: flex">
         <div class="modalContent" role="status" aria-live="polite">
           <h1>
-            <img src="./assets/logo.svg" alt="" />
+            <img src="./assets/logo.webp" alt="" />
             <span class="sr-only">It's diggin' time!</span>
             <span class="label">Beta</span>
           </h1>
@@ -1174,12 +1174,11 @@
 
         const preloadAssets = async () => {
           const paths = [
-            "./assets/decoration--car.webp",
+            "./assets/logo.webp",
             "./assets/crate-plastic--orange.webp",
             "./assets/crate-plastic--blue.webp",
             "./assets/crate-plastic--green.webp",
             "./assets/crate-plastic--red.webp",
-            "./favicon.png",
             ...Array.from(
               { length: GAME_CONFIG.goodRecordTotal },
               (_, i) =>
