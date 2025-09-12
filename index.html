@@ -6,7 +6,7 @@
     <title>Diggin' time! (BETA)</title>
     <meta
       name="description"
-      content="A realistic op-shop record hunting simulator (of sorts). Prepare to be disappointed!"
+      content="A free, semi-realistic op-shop record hunting simulator (of sorts). Prepare to be disappointed!"
     />
     <meta
       name="theme-color"
@@ -22,8 +22,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      rel="preload"
       href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-      rel="stylesheet"
+      as="style"
     />
     <link rel="shortcut icon" href="./favicon.png" />
 
@@ -31,6 +32,24 @@
       property="og:image"
       content="https://diggin-time.netlify.app/assets/og-image.webp"
     />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Diggin’ Time",
+        "genre": "Casual, Browser Game",
+        "applicationCategory": "Game",
+        "operatingSystem": "Any (Web Browser)",
+        "url": "https://diggin-time.netlify.app/",
+        "image": "https://diggin-time.netlify.app/assets/og-image.webp",
+        "author": {
+          "@type": "Person",
+          "name": "J. Ferguson"
+        },
+        "description": A free, semi-realistic op-shop record hunting simulator (of sorts). Prepare to be disappointed!"
+      }
+    </script>
 
     <style>
       :root {
