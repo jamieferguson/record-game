@@ -27,6 +27,11 @@
     />
     <link rel="shortcut icon" href="./favicon.png" />
 
+    <meta
+      property="og:image"
+      content="https://diggin-time.netlify.app/assets/og-image.webp"
+    />
+
     <style>
       :root {
         --bg-color: #eae9e0;
@@ -95,6 +100,13 @@
         opacity: 0;
       }
 
+      .sr-only {
+        display: block;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+      }
+
       main {
         display: flex;
         flex-direction: column;
@@ -117,17 +129,30 @@
       }
 
       h1 {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1.5/1;
         text-align: center;
         font-size: calc(5.5em + 4vmin);
+        margin-bottom: 0.3em;
       }
 
-      h1 span {
+      h1 img {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 130%;
+        height: auto;
+      }
+
+      h1 .label {
         display: inline-flex;
         font-family: var(--bodyFont);
         font-size: 13px;
         letter-spacing: normal;
         position: absolute;
-        bottom: -1.3em;
+        bottom: -3%;
         left: 70%;
         transform: translateX(-50%) rotate(2deg);
         z-index: 1;
@@ -837,7 +862,11 @@
     <div id="modalContainer" class="visible">
       <div id="startModal" class="modal" style="display: flex">
         <div class="modalContent" role="status" aria-live="polite">
-          <h1>It's diggin' time! <span>Beta</span></h1>
+          <h1>
+            <img src="./assets/logo.svg" alt="" />
+            <span class="sr-only">It's diggin' time!</span>
+            <span class="label">Beta</span>
+          </h1>
           <p>
             The local op-shop is just about to close &mdash; you have just 30
             seconds to look through the crates.
@@ -871,12 +900,40 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const goodRecordTotal = 11;
-        const badRecordTotal = 100;
+        /* ==========================
+     SHORTCUTS / UTILITIES
+     ========================== */
+        const qs = (sel) => document.querySelector(sel);
+        const qid = (id) => document.getElementById(id);
+        const createEl = (tag, cls) => {
+          const el = document.createElement(tag);
+          if (cls) el.className = cls;
+          return el;
+        };
+        function shuffleArray(array) {
+          for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+          }
+        }
 
+        /* ==========================
+     CONFIG
+     ========================== */
+        const GAME_CONFIG = {
+          goodRecordTotal: 11, // total unique "good" covers
+          badRecordTotal: 100, // total unique "bad" covers
+          goodChance: 0.1, // probability that a popped record is good
+          popInterval: 1000, // ms between record pops
+          startTime: 30, // seconds of game time
+          gameOverPickLimit: 5, // max picks before game ends
+        };
+
+        /* ==========================
+     PRELOAD (with progress)
+     ========================== */
         const progressBar = document.getElementById("progress-bar");
 
-        /* ---------- Preload with Progress ---------- */
         const preloadAssets = async () => {
           const paths = [
             "./assets/decoration--car.webp",
@@ -886,7 +943,7 @@
             "./assets/crate-plastic--red.webp",
             "./favicon.png",
             ...Array.from(
-              { length: goodRecordTotal },
+              { length: GAME_CONFIG.goodRecordTotal },
               (_, i) =>
                 `./assets/covers-good/cover-good-${String(i + 1).padStart(
                   2,
@@ -894,7 +951,7 @@
                 )}.webp`
             ),
             ...Array.from(
-              { length: badRecordTotal },
+              { length: GAME_CONFIG.badRecordTotal },
               (_, i) =>
                 `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
                   2,
@@ -908,8 +965,10 @@
 
           function updateProgress() {
             const percent = Math.round((loaded / total) * 100);
-            progressBar.value = percent;
-            progressBar.setAttribute("aria-valuenow", percent);
+            if (progressBar) {
+              progressBar.value = percent;
+              progressBar.setAttribute("aria-valuenow", percent);
+            }
           }
 
           const preloadImage = (src) =>
@@ -923,7 +982,6 @@
               img.src = src;
             });
 
-          // preload images + fonts
           await Promise.all([
             ...paths.map(preloadImage),
             document.fonts.ready.then(() => {
@@ -937,18 +995,9 @@
         document.body.classList.remove("isLoading");
         document.body.style.touchAction = "manipulation";
 
-        /* ---------- Shortcuts ---------- */
-        const qs = (sel) => document.querySelector(sel);
-        const qid = (id) => document.getElementById(id);
-        const createEl = (tag, cls) => {
-          const el = document.createElement(tag);
-          if (cls) el.className = cls;
-          return el;
-        };
-
-        /* ---------- DOM ---------- */
-
-        const crateContainer = qs(".crateContainer");
+        /* ==========================
+     DOM REFERENCES
+     ========================== */
         const crateContainerInner = document.querySelectorAll(
           ".crateContainer--inner"
         );
@@ -971,34 +1020,33 @@
         const cancelGameButton = qid("cancelGameButton");
 
         const decorationCar = qid("decoration--car");
-        // const decorationSign = qid("decoration--sign");
 
-        /* ---------- State ---------- */
-        const RECORD_TYPES = { GOOD: goodRecordTotal, BAD: badRecordTotal };
-        const GOOD_CHANCE = 0.1;
-        const POP_INTERVAL = 1000;
+        /* ==========================
+     STATE
+     ========================== */
+        const RECORD_TYPES = {
+          GOOD: GAME_CONFIG.goodRecordTotal,
+          BAD: GAME_CONFIG.badRecordTotal,
+        };
 
         let crateElements = [];
         let pickedRecords = [];
         let goodRecord = 0,
           badRecord = 0,
-          gameTime = 30;
+          gameTime = GAME_CONFIG.startTime;
         let gameActive = false,
           lastPopTime = 0,
           timerId;
 
         let badCovers = [];
-        let availableBadCovers = []; // New state variable
+        let availableBadCovers = [];
 
-        /* ---------- Crates ---------- */
+        /* ==========================
+     CRATES MODULE
+     ========================== */
         function generateCrates() {
-          // Select all existing .crateContainer elements
-
           crateElements = [];
-
-          // Iterate over each container element
           crateContainerInner.forEach((container, i) => {
-            // Clear any existing content in the container
             container.innerHTML = "";
 
             const recordBtn = document.createElement("button");
@@ -1019,10 +1067,8 @@
             const box = document.createElement("div");
             box.className = "crate-box";
 
-            // Append the newly created elements to the existing container
             container.append(recordBtn, cover, box);
 
-            // Push the new object to the crateElements array
             crateElements.push({
               crateEl: container,
               recordEl: recordBtn,
@@ -1037,17 +1083,9 @@
           });
         }
 
-        // New shuffle function
-        function shuffleArray(array) {
-          for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-          }
-        }
-
         function generateBadCovers() {
           badCovers = Array.from(
-            { length: badRecordTotal },
+            { length: GAME_CONFIG.badRecordTotal },
             (_, i) =>
               `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
                 2,
@@ -1065,8 +1103,14 @@
           });
         }
 
-        /* ---------- Game Flow ---------- */
-        function revealWhenReady(crate, record, hideAfter = POP_INTERVAL) {
+        /* ==========================
+     GAME FLOW
+     ========================== */
+        function revealWhenReady(
+          crate,
+          record,
+          hideAfter = GAME_CONFIG.popInterval
+        ) {
           const popId = Symbol();
           crate.popId = popId;
           crate.type = record.type;
@@ -1092,7 +1136,7 @@
           const crate = spots[Math.floor(Math.random() * spots.length)];
           crate.isLocked = true;
 
-          const isGood = Math.random() < GOOD_CHANCE;
+          const isGood = Math.random() < GAME_CONFIG.goodChance;
           let imageUrl, type;
 
           if (isGood) {
@@ -1104,9 +1148,8 @@
             imageUrl = `./assets/covers-good/cover-good-${idx}.webp`;
             type = "good";
           } else {
-            // Select a unique bad cover
             const idx = Math.floor(Math.random() * availableBadCovers.length);
-            imageUrl = availableBadCovers.splice(idx, 1)[0]; // Remove from the pool
+            imageUrl = availableBadCovers.splice(idx, 1)[0];
             type = "bad";
           }
 
@@ -1130,19 +1173,23 @@
         }
 
         function updateScoreboard() {
-          totalSpan.textContent = goodRecord + badRecord;
-          timerSpan.textContent = gameTime;
+          if (totalSpan) totalSpan.textContent = goodRecord + badRecord;
+          if (timerSpan) timerSpan.textContent = gameTime;
         }
 
         function checkGameOver() {
-          if (goodRecord + badRecord >= 5 || gameTime <= 0) {
+          if (
+            goodRecord + badRecord >= GAME_CONFIG.gameOverPickLimit ||
+            gameTime <= 0
+          ) {
             gameActive = false;
-
             showGameOver();
           }
         }
 
-        // DECORATIONS
+        /* ==========================
+     UI / Helpers
+     ========================== */
         function addAnimationOnInteraction(el, animationClass) {
           if (!el) return;
 
@@ -1158,7 +1205,6 @@
         }
 
         addAnimationOnInteraction(decorationCar, "roll");
-        // addAnimationOnInteraction(decorationSign, "fall");
 
         function showGameOver() {
           clearInterval(timerId);
@@ -1170,7 +1216,7 @@
             finalScoreTitle.innerHTML =
               "<h2>Another typical day in the op-shop!</h2>";
             finalScoreMessage.innerHTML =
-              "<p>You didn't find a thing worth buying, but at least you didn't waste any money.</p>";
+              "<p>You didn't find anything worth buying, but at least you didn't waste any money.</p>";
             pickedRecords = [];
           } else if (goodRecord === 0) {
             finalScoreTitle.innerHTML = "<h2>What a waste of money!</h2>";
@@ -1213,12 +1259,15 @@
           hideRecord(crate);
         }
 
+        /* ==========================
+     GAME CONTROL
+     ========================== */
         function startGame() {
-          // NEW: Reset the pool of available bad covers at the start of each game.
+          // Reset the pool of available bad covers at the start of each game.
           availableBadCovers = [...badCovers]; // Create a shallow copy
           goodRecord = 0;
           badRecord = 0;
-          gameTime = 30;
+          gameTime = GAME_CONFIG.startTime;
           pickedRecords = [];
           gameActive = true;
           startModal.style.display = "none";
@@ -1260,67 +1309,51 @@
         }
 
         function gameLoop(ts) {
-          if (gameActive && ts - lastPopTime > POP_INTERVAL) {
+          if (gameActive && ts - lastPopTime > GAME_CONFIG.popInterval) {
             popRecord();
             lastPopTime = ts;
           }
           requestAnimationFrame(gameLoop);
         }
 
-        const handleStartClick = () => {
-          // console.log("GA Event Fired:", "game_start", {
-          //   event_category: "Game Flow",
-          //   event_label: "Start Button Click",
-          // });
+        /* ==========================
+     EVENT BINDING
+     ========================== */
+        startButton.addEventListener("click", () => {
           gtag("event", "game_start", {
             event_category: "Game Flow",
             event_label: "Start Button Click",
           });
           startGame();
-        };
+        });
 
-        const handleRestartClick = () => {
-          // console.log("GA Event Fired:", "game_restart", {
-          //   event_category: "Game Flow",
-          //   event_label: "Restart Button Click",
-          // });
+        restartButton.addEventListener("click", () => {
           gtag("event", "game_restart", {
             event_category: "Game Flow",
             event_label: "Restart Button Click",
           });
           startGame();
-        };
+        });
 
-        const handleAnotherGoClick = () => {
-          // console.log("GA Event Fired:", "game_continue", {
-          //   event_category: "Game Flow",
-          //   event_label: "Another Go Button Click",
-          // });
+        anotherGoButton.addEventListener("click", () => {
           gtag("event", "game_continue", {
             event_category: "Game Flow",
             event_label: "Another Go Button Click",
           });
           startGame();
-        };
+        });
 
-        const handleCancelClick = () => {
-          // console.log("GA Event Fired:", "game_give_up", {
-          //   event_category: "Game Flow",
-          //   event_label: "Give Up Button Click",
-          // });
+        cancelGameButton.addEventListener("click", () => {
           gtag("event", "game_give_up", {
             event_category: "Game Flow",
             event_label: "Give Up Button Click",
           });
           cancelGame();
-        };
+        });
 
-        /* ---------- Listeners ---------- */
-        startButton.addEventListener("click", handleStartClick);
-        restartButton.addEventListener("click", handleRestartClick);
-        anotherGoButton.addEventListener("click", handleAnotherGoClick);
-        cancelGameButton.addEventListener("click", handleCancelClick);
-
+        /* ==========================
+     INIT
+     ========================== */
         generateCrates();
         generateBadCovers();
         setCrateCovers();
