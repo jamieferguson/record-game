@@ -800,13 +800,19 @@
       /* FOOTER */
 
       footer {
+        display: flex;
+        gap: 0.5em;
         margin-top: 25px;
+        font-size: 13px;
+        color: #00000060;
+      }
+
+      footer a {
+        color: var(--text-color);
       }
 
       address {
         font-style: normal;
-        font-size: 13px;
-        opacity: 0.5;
       }
     </style>
 
@@ -889,6 +895,11 @@
 
     <footer>
       <address>&copy; J. Ferguson <span id="currentYear"></span></address>
+      |
+      <span
+        >I also do
+        <a href="https://three-am.netlify.app/">some other stuff</a>.</span
+      >
     </footer>
 
     <div id="modalContainer" class="visible">
