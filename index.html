@@ -339,6 +339,8 @@
         /* gap: 10px; */
         /* background-color: var(--wall-color); */
         border-radius: 20px;
+        width: 100%;
+        padding-inline: 15px;
         /* flex-direction: column;
         align-items: center; */
         /* padding: 10px 10px 20px; */
@@ -352,6 +354,9 @@
         @media (width>800px) {
           padding: 30px;
         } */
+        @media (orientation: landscape) {
+          width: auto;
+        }
       }
 
       /* SCORE */
@@ -369,16 +374,47 @@
       }
       #scoreBoard--inner {
         display: flex;
-        gap: 2px;
-        border-radius: 5px;
-        overflow: hidden;
+        flex: 1;
+        justify-content: space-between;
+        gap: 10px;
       }
 
       #scoreBoard--inner > span {
-        background-color: #ffffff60;
         backdrop-filter: blur(20px);
         padding: 0.5em 0.75em;
         font-weight: 600;
+        border-radius: 5em;
+      }
+
+      #scoreBoard--total {
+        background-color: #ffffff60;
+      }
+
+      #scoreBoard--total.animate {
+        animation: popScore 0.35s ease;
+      }
+
+      @keyframes popScore {
+        0% {
+          transform: scale(1);
+        }
+        30% {
+          transform: scale(1.1);
+          background-color: #ffffff90;
+          box-shadow: 0 5px 10px #00000020;
+        }
+        60% {
+          transform: scale(0.95);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      #scoreBoard--time {
+        background-color: #00000060;
+        color: white;
+        min-width: 13ch;
       }
 
       /* CRATES */
@@ -616,7 +652,7 @@
         position: absolute;
         z-index: -2;
         filter: blur(0.5px);
-        opacity: 0.8;
+        opacity: 0.7;
       }
 
       /* SIGN */
@@ -1011,8 +1047,10 @@
     <main id="gameContainer">
       <div id="scoreBoard">
         <div id="scoreBoard--inner" role="status" aria-live="polite">
-          <span>Total: <span id="total">0</span></span>
-          <span>Time left: <span id="timer">30</span>s</span>
+          <span id="scoreBoard--total">Total: <span id="total">0</span></span>
+          <span id="scoreBoard--time"
+            >Time left: <span id="timer">30</span>s</span
+          >
         </div>
         <button class="btn" id="cancelGameButton">I give up</button>
       </div>
@@ -1157,8 +1195,8 @@
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         /* ==========================
-     SHORTCUTS / UTILITIES
-     ========================== */
+           SHORTCUTS / UTILITIES
+           ========================== */
         const qs = (sel) => document.querySelector(sel);
         const qid = (id) => document.getElementById(id);
         const createEl = (tag, cls) => {
@@ -1174,8 +1212,8 @@
         }
 
         /* ==========================
-     CONFIG
-     ========================== */
+           CONFIG
+           ========================== */
         const GAME_CONFIG = {
           goodRecordTotal: 11, // total unique "good" covers
           badRecordTotal: 100, // total unique "bad" covers
@@ -1186,8 +1224,8 @@
         };
 
         /* ==========================
-     PRELOAD (with progress)
-     ========================== */
+           PRELOAD (with progress)
+           ========================== */
         const progressBar = document.getElementById("progress-bar");
 
         const preloadAssets = async () => {
@@ -1251,8 +1289,8 @@
         document.body.style.touchAction = "manipulation";
 
         /* ==========================
-     DOM REFERENCES
-     ========================== */
+           DOM REFERENCES
+           ========================== */
         const crateContainerInner = document.querySelectorAll(
           ".crateContainer--inner"
         );
@@ -1265,6 +1303,7 @@
         const finalScoreMessage = qid("finalScoreMessage");
 
         const totalSpan = qid("total");
+        const totalContainer = qid("scoreBoard--total");
         const timerSpan = qid("timer");
         const yearSpan = qid("currentYear");
         if (yearSpan) yearSpan.textContent = new Date().getFullYear();
@@ -1281,8 +1320,8 @@
         const decorationMary = qid("decoration--mary");
 
         /* ==========================
-     STATE
-     ========================== */
+           STATE
+           ========================== */
         const RECORD_TYPES = {
           GOOD: GAME_CONFIG.goodRecordTotal,
           BAD: GAME_CONFIG.badRecordTotal,
@@ -1299,10 +1338,11 @@
 
         let badCovers = [];
         let availableBadCovers = [];
+        let lastScore = 0;
 
         /* ==========================
-     CRATES MODULE
-     ========================== */
+           CRATES MODULE
+           ========================== */
         function generateCrates() {
           crateElements = [];
           crateContainerInner.forEach((container, i) => {
@@ -1363,8 +1403,8 @@
         }
 
         /* ==========================
-     GAME FLOW
-     ========================== */
+           GAME FLOW
+           ========================== */
         function revealWhenReady(
           crate,
           record,
@@ -1432,8 +1472,24 @@
         }
 
         function updateScoreboard() {
-          if (totalSpan) totalSpan.textContent = goodRecord + badRecord;
-          if (timerSpan) timerSpan.textContent = gameTime;
+          const currentScore = goodRecord + badRecord;
+
+          if (totalSpan) {
+            totalSpan.textContent = currentScore;
+          }
+
+          // Only animate if score actually increased
+          if (currentScore > lastScore && totalContainer) {
+            totalContainer.classList.remove("animate"); // reset if still active
+            void totalContainer.offsetWidth; // force reflow
+            totalContainer.classList.add("animate");
+          }
+
+          if (timerSpan) {
+            timerSpan.textContent = gameTime;
+          }
+
+          lastScore = currentScore; // update tracker
         }
 
         function checkGameOver() {
@@ -1447,8 +1503,8 @@
         }
 
         /* ==========================
-     UI / Helpers
-     ========================== */
+           UI / Helpers
+           ========================== */
         function addAnimationOnInteraction(el, animationClass) {
           if (!el) return;
 
@@ -1523,8 +1579,8 @@
         }
 
         /* ==========================
-     GAME CONTROL
-     ========================== */
+           GAME CONTROL
+           ========================== */
         function startGame() {
           // Reset the pool of available bad covers at the start of each game.
           availableBadCovers = [...badCovers]; // Create a shallow copy
@@ -1580,8 +1636,8 @@
         }
 
         /* ==========================
-     EVENT BINDING
-     ========================== */
+           EVENT BINDING
+           ========================== */
         startButton.addEventListener("click", () => {
           gtag("event", "game_start", {
             event_category: "Game Flow",
@@ -1615,8 +1671,8 @@
         });
 
         /* ==========================
-     INIT
-     ========================== */
+           INIT
+           ========================== */
         generateCrates();
         generateBadCovers();
         setCrateCovers();
