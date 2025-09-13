@@ -363,14 +363,18 @@
       #scoreBoard {
         position: sticky;
         z-index: 120;
-        top: 20px;
         display: flex;
+        top: 0;
         gap: 10px;
         justify-content: space-between;
         align-items: center;
         width: 100%;
         font-size: 0.8em;
         text-align: center;
+        padding-top: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #00000030;
+        pointer-events: none;
       }
       #scoreBoard--inner {
         display: flex;
@@ -387,7 +391,7 @@
       }
 
       #scoreBoard--total {
-        background-color: #ffffff60;
+        background-color: #ffffff50;
       }
 
       #scoreBoard--total.animate {
@@ -415,6 +419,10 @@
         background-color: #00000060;
         color: white;
         min-width: 13ch;
+      }
+
+      #cancelGameButton {
+        pointer-events: all;
       }
 
       /* CRATES */
@@ -830,7 +838,7 @@
       #decoration--jesus {
         width: 65%;
         top: -30%;
-        right: 2%;
+        right: 5%;
         transform: rotate(2deg);
         box-shadow: 3px 12px 10px -6px #00000060;
       }
@@ -908,6 +916,27 @@
         margin-top: 1em;
         font-size: 1.3em;
         transition: background-color 0.25s, transform 0.25s, opacity 0.25s ease;
+        pointer-events: none;
+        opacity: 0;
+      }
+
+      .visible .btn {
+        animation: modalBtn 0.75s ease-in-out 1s forwards;
+      }
+
+      @keyframes modalBtn {
+        0% {
+          opacity: 0;
+          pointer-events: none;
+        }
+        90% {
+          opacity: 1;
+          pointer-events: none;
+        }
+        100% {
+          opacity: 1;
+          pointer-events: all;
+        }
       }
 
       #finalScoreCovers:not(:empty) {
