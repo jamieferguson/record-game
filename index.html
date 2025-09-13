@@ -83,10 +83,13 @@
         --bodyFont: "Inter", sans-serif;
         --titleFont: "Bagel Fat One", "Inter", sans-serif;
 
-        --crate-size: 42vw;
-        @media (width> 500px) {
-          --crate-size: 200px;
+        --crate-size: 150px;
+        @media (orientation: portrait) {
+          --crate-size: 42vw;
         }
+        /* @media (width> 800px) {
+          --crate-size: 200px;
+        } */
         @media (width> 1000px) {
           --crate-size: 220px;
         }
@@ -331,12 +334,13 @@
 
       /* GAME */
       #gameContainer {
-        display: flex;
+        display: block;
+        /* display: flex; */
         /* gap: 10px; */
         /* background-color: var(--wall-color); */
         border-radius: 20px;
-        flex-direction: column;
-        align-items: center;
+        /* flex-direction: column;
+        align-items: center; */
         /* padding: 10px 10px 20px; */
         /* gap: 0; */
         /* box-shadow: 0 30px 100px #00000020; */
@@ -381,7 +385,8 @@
       #cratesContainer {
         overflow: hidden;
         padding-bottom: 120px;
-        padding-top: 60px;
+        padding-top: 50px;
+        /* padding-top: 60px;
         margin-top: -30px;
         @media (width > 500px) {
           padding-top: 70px;
@@ -390,7 +395,7 @@
         @media (width > 800px) {
           padding-top: 82px;
           margin-top: -62px;
-        }
+        } */
       }
 
       .cratesRow {
@@ -788,7 +793,7 @@
 
       #decoration--jesus {
         width: 65%;
-        top: -95%;
+        top: -24%;
         right: 2%;
         transform: rotate(2deg);
         box-shadow: 3px 12px 10px -6px #00000060;
@@ -1057,12 +1062,6 @@
               alt=""
             />
           </div>
-          <img
-            id="decoration--jesus"
-            class="wallDecoration"
-            src="./assets/decoration--jesus.webp"
-            alt=""
-          />
         </div>
         <div class="shelf"></div>
         <div id="cratesRow-02" class="cratesRow">
@@ -1099,6 +1098,12 @@
         </div>
         <div class="shelf"></div>
       </div>
+      <img
+        id="decoration--jesus"
+        class="wallDecoration"
+        src="./assets/decoration--jesus.webp"
+        alt=""
+      />
     </main>
 
     <footer>
