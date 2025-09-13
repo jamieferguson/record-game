@@ -87,16 +87,16 @@
         @media (orientation: portrait) {
           --crate-size: 42vw;
         }
-        /* @media (width> 800px) {
+        /* @media (min-width: 800px) {
           --crate-size: 200px;
         } */
-        @media (width> 1000px) {
+        @media (min-width: 1000px) {
           --crate-size: 220px;
         }
-        @media (height> 1000px) {
+        @media (min-height: 1000px) {
           --crate-size: 250px;
         }
-        @media (height> 1200px) {
+        @media (min-height: 1200px) {
           --crate-size: 300px;
         }
       }
@@ -124,13 +124,13 @@
         font-family: var(--bodyFont);
         font-size: 14px;
         min-height: 100vh;
-        @media (width>500px) {
+        @media (min-width: 500px) {
           font-size: 16px;
         }
-        @media (width> 1000px) {
+        @media (min-width: 1000px) {
           font-size: 18px;
         }
-        @media (width> 1200px) {
+        @media (min-width: 1200px) {
           font-size: 20px;
         }
       }
@@ -348,12 +348,13 @@
         /* box-shadow: 0 30px 100px #00000020; */
         /* backdrop-filter: blur(10px); */
 
-        /* @media (width>500px) {
+        /* @media (min-width:500px) {
           padding: 20px;
         }
-        @media (width>800px) {
+        @media (min-width:800px) {
           padding: 30px;
         } */
+
         @media (orientation: landscape) {
           width: auto;
         }
@@ -451,7 +452,7 @@
         padding-bottom: 2px;
         overflow: visible;
         bottom: -3px;
-        @media (width>500px) {
+        @media (min-width: 500px) {
           padding-inline: 25px;
         }
       }
