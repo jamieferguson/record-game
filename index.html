@@ -1589,34 +1589,31 @@
 
         function showGameOver() {
           clearInterval(timerId);
+          finalScoreTitle.innerHTML = "";
+          finalScoreMessage.innerHTML = "";
           finalScoreCovers.innerHTML = "";
 
-          const title = createEl("h2");
-          const message = createEl("p");
-
           if (goodRecord === 0 && badRecord === 0) {
-            title.textContent = "Another typical day in the op-shop!";
-            message.textContent =
-              "You didn't find anything worth buying, but at least you didn't waste any money.";
+            finalScoreTitle.innerHTML =
+              "<h2>Another typical day in the op-shop!</h2>";
+            finalScoreMessage.innerHTML =
+              "<p>You didn't find anything worth buying, but at least you didn't waste any money.</p>";
             pickedRecords = [];
           } else if (goodRecord === 0) {
-            title.textContent = "What a waste of money!";
-            message.textContent = "All you bought was crap.";
+            finalScoreTitle.innerHTML = "<h2>What a waste of money!</h2>";
+            finalScoreMessage.innerHTML = "<p>All you bought was crap.</p>";
           } else if (goodRecord === 1 && badRecord === 0) {
-            title.textContent = "How'd you go?";
-            message.textContent =
-              "You actually found something half-decent for a change, but it has the wrong record inside! Oh well.";
+            finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
+            finalScoreMessage.innerHTML =
+              "<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>";
           } else if (goodRecord === 1 && badRecord >= 0) {
-            title.textContent = "How'd you go?";
-            message.textContent =
-              "You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.";
+            finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
+            finalScoreMessage.innerHTML =
+              "<p>You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.</p>";
           } else if (goodRecord >= 1) {
-            title.textContent = "Any luck?";
-            message.textContent = `You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!`;
+            finalScoreTitle.innerHTML = "<h2>Any luck?</h2>";
+            finalScoreMessage.innerHTML = `<p>You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
           }
-
-          finalScoreTitle.appendChild(title);
-          finalScoreMessage.appendChild(message);
 
           pickedRecords.forEach((r) => {
             const d = createEl("div", `picked-record ${r.type}-cover`);
