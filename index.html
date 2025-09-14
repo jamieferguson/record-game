@@ -1065,8 +1065,13 @@
         margin: 0;
       }
 
-      @supports not (aspect-ratio: 1/1) or not (--foo: red) or not
-        (font-size: clamp(11px, 2vw, 16px)) {
+      @supports not (font-size: clamp(11px, 2vw, 16px)) {
+        #browserWarning {
+          display: block;
+        }
+      }
+
+      @supports not (orientation: landscape) {
         #browserWarning {
           display: block;
         }
