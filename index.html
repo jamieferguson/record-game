@@ -1437,8 +1437,10 @@
           });
         }
 
+        let preShuffledBadCovers = [];
+
         function generateBadCovers() {
-          badCovers = Array.from(
+          preShuffledBadCovers = Array.from(
             { length: GAME_CONFIG.badRecordTotal },
             (_, i) =>
               `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
@@ -1446,13 +1448,12 @@
                 "0"
               )}.webp`
           );
-          shuffleArray(badCovers);
+          shuffleArray(preShuffledBadCovers);
         }
 
         function setCrateCovers() {
-          const coversToUse = badCovers.slice(0, crateElements.length);
           crateElements.forEach((crate, index) => {
-            crate.coverImgEl.src = coversToUse[index];
+            crate.coverImgEl.src = preShuffledBadCovers[index];
             crate.coverEl.classList.add("bad-record");
           });
         }
@@ -1502,8 +1503,12 @@
             imageUrl = `./assets/covers-good/cover-good-${idx}.webp`;
             type = "good";
           } else {
-            const idx = Math.floor(Math.random() * availableBadCovers.length);
-            imageUrl = availableBadCovers.splice(idx, 1)[0];
+            // This is the optimized part
+            if (availableBadCovers.length === 0) {
+              // Handle the rare case where all bad covers have been used
+              availableBadCovers = [...preShuffledBadCovers];
+            }
+            imageUrl = availableBadCovers.pop();
             type = "bad";
           }
 
@@ -1638,7 +1643,7 @@
            ========================== */
         function startGame() {
           // Reset the pool of available bad covers at the start of each game.
-          availableBadCovers = [...badCovers]; // Create a shallow copy
+          availableBadCovers = [...preShuffledBadCovers];
           goodRecord = 0;
           badRecord = 0;
           gameTime = GAME_CONFIG.startTime;
