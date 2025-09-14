@@ -65,6 +65,38 @@
     </script>
 
     <style>
+      #browserWarning {
+        display: block;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        z-index: 9999;
+        background: #b91919cc;
+        color: white;
+        padding: 14px;
+        text-align: center;
+        font-size: 14px;
+        font-family: "Inter", sans-serif;
+      }
+
+      #browserWarning p {
+        margin: 0;
+      }
+
+      /* ONLY HIDE WARNING IF ORIENTATION IS SUPPORTED */
+      @media (orientation: landscape) or (orientation: portrait) {
+        #browserWarning {
+          display: none;
+        }
+      }
+
+      @supports (aspect-ratio: 1/1) {
+        #browserWarning {
+          display: block !important;
+        }
+      }
+
       :root {
         --bg-color: #dbdace;
         --text-color: #333;
@@ -84,22 +116,28 @@
         --titleFont: "Bagel Fat One", "Inter", sans-serif;
 
         --crate-size: 150px;
-        @media (orientation: portrait) {
+      }
+      @media (orientation: portrait) {
+        :root {
           --crate-size: 42vw;
         }
-        /* @media (min-width: 800px) {
-          --crate-size: 200px;
-        } */
-        @media (min-width: 1000px) {
+      }
+      @media (min-width: 1000px) {
+        :root {
           --crate-size: 220px;
         }
-        @media (min-height: 1000px) {
+      }
+      @media (min-height: 1000px) {
+        :root {
           --crate-size: 250px;
         }
-        @media (min-height: 1200px) {
+      }
+      @media (min-height: 1200px) {
+        :root {
           --crate-size: 300px;
         }
       }
+
       html {
         overscroll-behavior: none;
       }
@@ -120,17 +158,23 @@
         user-select: none;
         -webkit-user-select: none;
         touch-action: none;
-
         font-family: var(--bodyFont);
         font-size: 14px;
         min-height: 100vh;
-        @media (min-width: 500px) {
+      }
+
+      @media (min-width: 500px) {
+        body {
           font-size: 16px;
         }
-        @media (min-width: 1000px) {
+      }
+      @media (min-width: 1000px) {
+        body {
           font-size: 18px;
         }
-        @media (min-width: 1200px) {
+      }
+      @media (min-width: 1200px) {
+        body {
           font-size: 20px;
         }
       }
@@ -335,27 +379,13 @@
       /* GAME */
       #gameContainer {
         display: block;
-        /* display: flex; */
-        /* gap: 10px; */
-        /* background-color: var(--wall-color); */
         border-radius: 20px;
         width: 100%;
         padding-inline: 15px;
-        /* flex-direction: column;
-        align-items: center; */
-        /* padding: 10px 10px 20px; */
-        /* gap: 0; */
-        /* box-shadow: 0 30px 100px #00000020; */
-        /* backdrop-filter: blur(10px); */
+      }
 
-        /* @media (min-width:500px) {
-          padding: 20px;
-        }
-        @media (min-width:800px) {
-          padding: 30px;
-        } */
-
-        @media (orientation: landscape) {
+      @media (orientation: landscape) {
+        #gameContainer {
           width: auto;
         }
       }
@@ -431,16 +461,6 @@
         overflow: hidden;
         padding-bottom: 120px;
         padding-top: 30px;
-        /* padding-top: 60px;
-        margin-top: -30px;
-        @media (width > 500px) {
-          padding-top: 70px;
-          margin-top: -50px;
-        }
-        @media (width > 800px) {
-          padding-top: 82px;
-          margin-top: -62px;
-        } */
       }
 
       .cratesRow {
@@ -452,7 +472,10 @@
         padding-bottom: 2px;
         overflow: visible;
         bottom: -3px;
-        @media (min-width: 500px) {
+      }
+
+      @media (min-width: 500px) {
+        .cratesRow {
           padding-inline: 25px;
         }
       }
@@ -695,24 +718,6 @@
         box-shadow: 0 1px 2px #00000030;
         z-index: 101;
       }
-
-      /* #decoration--sign.fall {
-        animation: signFall 0.5s ease-in forwards 0.5s;
-        box-shadow: none;
-      }
-
-      @keyframes signFall {
-        0% {
-          transform: translateY(0) translateX(-50%) rotate(-2deg);
-          opacity: 0.9;
-          filter: blur(1px);
-        }
-        100% {
-          transform: translateY(900px) translateX(-50%) rotate(60deg);
-          opacity: 0.9;
-          filter: blur(1px);
-        }
-      } */
 
       #decoration--car {
         width: 35%;
@@ -1044,32 +1049,6 @@
 
       address {
         font-style: normal;
-      }
-
-      #browserWarning {
-        display: block;
-        position: fixed;
-        top: 0px;
-        left: 0px;
-        right: 0px;
-        z-index: 9999;
-        background: #b91919cc;
-        color: white;
-        padding: 14px;
-        text-align: center;
-        font-size: 14px;
-        font-family: "Inter", sans-serif;
-      }
-
-      #browserWarning p {
-        margin: 0;
-      }
-
-      /* ONLY HIDE WARNING IF ORIENTATION IS SUPPORTED */
-      @media (orientation: landscape) or (orientation: portrait) {
-        #browserWarning {
-          display: none;
-        }
       }
     </style>
 
