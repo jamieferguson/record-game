@@ -1250,8 +1250,8 @@
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         /* ==========================
-           SHORTCUTS / UTILITIES
-           ========================== */
+                 SHORTCUTS / UTILITIES
+                 ========================== */
         const qs = (sel) => document.querySelector(sel);
         const qid = (id) => document.getElementById(id);
         const createEl = (tag, cls) => {
@@ -1267,8 +1267,8 @@
         }
 
         /* ==========================
-           CONFIG
-           ========================== */
+                 CONFIG
+                 ========================== */
         const GAME_CONFIG = {
           goodRecordTotal: 11, // total unique "good" covers
           badRecordTotal: 113, // total unique "bad" covers
@@ -1279,8 +1279,8 @@
         };
 
         /* ==========================
-           PRELOAD (with progress)
-           ========================== */
+                 PRELOAD (with progress)
+                 ========================== */
         const progressBar = document.getElementById("progress-bar");
 
         const preloadAssets = async () => {
@@ -1344,8 +1344,8 @@
         document.body.style.touchAction = "manipulation";
 
         /* ==========================
-           DOM REFERENCES
-           ========================== */
+                 DOM REFERENCES
+                 ========================== */
         const crateContainerInner = document.querySelectorAll(
           ".crateContainer--inner"
         );
@@ -1375,8 +1375,8 @@
         const decorationMary = qid("decoration--mary");
 
         /* ==========================
-           STATE
-           ========================== */
+         STATE
+         ========================== */
         const RECORD_TYPES = {
           GOOD: GAME_CONFIG.goodRecordTotal,
           BAD: GAME_CONFIG.badRecordTotal,
@@ -1391,13 +1391,14 @@
           lastPopTime = 0,
           timerId;
 
-        let badCovers = [];
+        // Changed `badCovers` to a pre-shuffled array
+        let preShuffledBadCovers = [];
         let availableBadCovers = [];
         let lastScore = 0;
 
         /* ==========================
-           CRATES MODULE
-           ========================== */
+         CRATES MODULE
+         ========================== */
         function generateCrates() {
           crateElements = [];
           crateContainerInner.forEach((container, i) => {
@@ -1437,8 +1438,7 @@
           });
         }
 
-        let preShuffledBadCovers = [];
-
+        // Function to generate and shuffle the bad covers once
         function generateBadCovers() {
           preShuffledBadCovers = Array.from(
             { length: GAME_CONFIG.badRecordTotal },
@@ -1451,6 +1451,7 @@
           shuffleArray(preShuffledBadCovers);
         }
 
+        // Optimized setCrateCovers function
         function setCrateCovers() {
           crateElements.forEach((crate, index) => {
             crate.coverImgEl.src = preShuffledBadCovers[index];
@@ -1459,8 +1460,8 @@
         }
 
         /* ==========================
-           GAME FLOW
-           ========================== */
+         GAME FLOW
+         ========================== */
         function revealWhenReady(
           crate,
           record,
@@ -1482,6 +1483,7 @@
             .catch(reveal);
         }
 
+        // Optimized popRecord function
         function popRecord() {
           if (!gameActive) return;
 
@@ -1563,8 +1565,8 @@
         }
 
         /* ==========================
-           UI / Helpers
-           ========================== */
+         UI / Helpers
+         ========================== */
         function addAnimationOnInteraction(el, animationClass) {
           if (!el) return;
 
@@ -1639,8 +1641,8 @@
         }
 
         /* ==========================
-           GAME CONTROL
-           ========================== */
+         GAME CONTROL
+         ========================== */
         function startGame() {
           // Reset the pool of available bad covers at the start of each game.
           availableBadCovers = [...preShuffledBadCovers];
@@ -1696,8 +1698,8 @@
         }
 
         /* ==========================
-           EVENT BINDING
-           ========================== */
+         EVENT BINDING
+         ========================== */
         startButton.addEventListener("click", () => {
           gtag("event", "game_start", {
             event_category: "Game Flow",
@@ -1731,8 +1733,8 @@
         });
 
         /* ==========================
-           INIT
-           ========================== */
+         INIT
+         ========================== */
         generateCrates();
         generateBadCovers();
         setCrateCovers();
