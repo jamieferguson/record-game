@@ -1047,7 +1047,7 @@
       }
 
       #browserWarning {
-        display: none;
+        display: block;
         position: fixed;
         top: 0px;
         left: 0px;
@@ -1065,15 +1065,10 @@
         margin: 0;
       }
 
-      @supports not (font-size: clamp(11px, 2vw, 16px)) {
+      /* ONLY HIDE WARNING IF ORIENTATION IS SUPPORTED */
+      @media (orientation: landscape) or (orientation: portrait) {
         #browserWarning {
-          display: block;
-        }
-      }
-
-      @supports not (orientation: landscape) {
-        #browserWarning {
-          display: block;
+          display: none;
         }
       }
     </style>
