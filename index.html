@@ -21,17 +21,20 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,wght@0,400;0,600;1,400;1,600&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789’!'“”--—.,:;?©&$%()<>+-=*"
+      onload="this.onload=null;this.rel='stylesheet'"
     />
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,wght@0,400;0,600;1,400;1,600&display=swap&text=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789’!'“”--—.,:;?©&$%()<>+-=*"
+      />
+    </noscript>
 
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-      media="all"
-    />
     <link rel="shortcut icon" href="./favicon.png" />
 
     <link rel="canonical" href="https://diggin-time.netlify.app/" />
@@ -60,7 +63,7 @@
           "@type": "Person",
           "name": "J. Ferguson"
         },
-        "description": A free, semi-realistic op-shop record hunting simulator (of sorts). Prepare to be disappointed!"
+        "description": "A free, semi-realistic op-shop record hunting simulator (of sorts). Prepare to be disappointed!"
       }
     </script>
 
@@ -1690,7 +1693,10 @@
         }
 
         function gameLoop(ts) {
-          if (gameActive && ts - lastPopTime > GAME_CONFIG.popInterval) {
+          if (!gameActive) {
+            return;
+          }
+          if (ts - lastPopTime > GAME_CONFIG.popInterval) {
             popRecord();
             lastPopTime = ts;
           }
@@ -1732,24 +1738,39 @@
           cancelGame();
         });
 
+        // Add a single listener to the parent container
+        cratesContainer.addEventListener(
+          "pointerdown",
+          (e) => {
+            const recordEl = e.target.closest(".record");
+            if (recordEl) {
+              const crateIndex = parseInt(recordEl.dataset.index);
+              const crate = crateElements[crateIndex];
+              handleRecordClick(crate, e);
+            }
+          },
+          {
+            passive: false,
+          }
+        );
+
+        cratesContainer.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            const recordEl = e.target.closest(".record");
+            if (recordEl) {
+              const crateIndex = parseInt(recordEl.dataset.index);
+              const crate = crateElements[crateIndex];
+              handleRecordClick(crate, e);
+            }
+          }
+        });
+
         /* ==========================
-         INIT
-         ========================== */
+   INIT
+   ========================== */
         generateCrates();
         generateBadCovers();
         setCrateCovers();
-
-        crateElements.forEach((c) => {
-          c.recordEl.addEventListener(
-            "pointerdown",
-            (e) => handleRecordClick(c, e),
-            { passive: false }
-          );
-          c.recordEl.addEventListener("keydown", (e) => {
-            if (e.key === "Enter" || e.key === " ") handleRecordClick(c, e);
-          });
-        });
-
         gameLoop(0);
       });
     </script>
