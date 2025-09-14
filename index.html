@@ -1396,6 +1396,7 @@
 
         // Changed `badCovers` to a pre-shuffled array
         let preShuffledBadCovers = [];
+        let badCoverIndex = 0;
         let availableBadCovers = [];
         let lastScore = 0;
 
@@ -1508,13 +1509,9 @@
             imageUrl = `./assets/covers-good/cover-good-${idx}.webp`;
             type = "good";
           } else {
-            // This is the optimized part
-            if (availableBadCovers.length === 0) {
-              // Handle the rare case where all bad covers have been used
-              availableBadCovers = [...preShuffledBadCovers];
-            }
-            imageUrl = availableBadCovers.pop();
+            imageUrl = preShuffledBadCovers[badCoverIndex];
             type = "bad";
+            badCoverIndex = (badCoverIndex + 1) % preShuffledBadCovers.length;
           }
 
           revealWhenReady(crate, {
@@ -1592,31 +1589,34 @@
 
         function showGameOver() {
           clearInterval(timerId);
-          finalScoreTitle.innerHTML = "";
-          finalScoreMessage.innerHTML = "";
           finalScoreCovers.innerHTML = "";
 
+          const title = createEl("h2");
+          const message = createEl("p");
+
           if (goodRecord === 0 && badRecord === 0) {
-            finalScoreTitle.innerHTML =
-              "<h2>Another typical day in the op-shop!</h2>";
-            finalScoreMessage.innerHTML =
-              "<p>You didn't find anything worth buying, but at least you didn't waste any money.</p>";
+            title.textContent = "Another typical day in the op-shop!";
+            message.textContent =
+              "You didn't find anything worth buying, but at least you didn't waste any money.";
             pickedRecords = [];
           } else if (goodRecord === 0) {
-            finalScoreTitle.innerHTML = "<h2>What a waste of money!</h2>";
-            finalScoreMessage.innerHTML = "<p>All you bought was crap.</p>";
+            title.textContent = "What a waste of money!";
+            message.textContent = "All you bought was crap.";
           } else if (goodRecord === 1 && badRecord === 0) {
-            finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
-            finalScoreMessage.innerHTML =
-              "<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>";
+            title.textContent = "How'd you go?";
+            message.textContent =
+              "You actually found something half-decent for a change, but it has the wrong record inside! Oh well.";
           } else if (goodRecord === 1 && badRecord >= 0) {
-            finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
-            finalScoreMessage.innerHTML =
-              "<p>You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.</p>";
+            title.textContent = "How'd you go?";
+            message.textContent =
+              "You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.";
           } else if (goodRecord >= 1) {
-            finalScoreTitle.innerHTML = "<h2>Any luck?</h2>";
-            finalScoreMessage.innerHTML = `<p>You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
+            title.textContent = "Any luck?";
+            message.textContent = `You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!`;
           }
+
+          finalScoreTitle.appendChild(title);
+          finalScoreMessage.appendChild(message);
 
           pickedRecords.forEach((r) => {
             const d = createEl("div", `picked-record ${r.type}-cover`);
@@ -1647,8 +1647,6 @@
          GAME CONTROL
          ========================== */
         function startGame() {
-          // Reset the pool of available bad covers at the start of each game.
-          availableBadCovers = [...preShuffledBadCovers];
           goodRecord = 0;
           badRecord = 0;
           gameTime = GAME_CONFIG.startTime;
