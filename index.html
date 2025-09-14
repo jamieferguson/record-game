@@ -85,7 +85,7 @@
       }
 
       /* ONLY HIDE WARNING IF ORIENTATION IS SUPPORTED */
-      @media (orientation: landscape) or (orientation: portrait) {
+      @media (orientation: landscape), (orientation: portrait) {
         #browserWarning {
           display: none;
         }
@@ -1070,8 +1070,8 @@
   <body class="isLoading">
     <div id="browserWarning">
       <p>
-        ⚠️ Unfortunately your browser doesn't support some of the features
-        needed for this game to work.
+        ⚠️ Looks like your browser doesn't support some of the features needed
+        for this game to work properly.
       </p>
     </div>
 
