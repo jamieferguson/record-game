@@ -57,6 +57,12 @@
 
         if (!window.CSS || !CSS.supports("aspect-ratio: 1/1")) return true;
 
+        if (
+          !CSS.supports("backdrop-filter: blur(1px)") &&
+          !CSS.supports("-webkit-backdrop-filter: blur(1px)")
+        )
+          return true;
+
         if (!document.fonts || !document.fonts.ready) return true;
 
         return false;
