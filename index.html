@@ -91,6 +91,18 @@
         }
       }
 
+      @supports (position: sticky) {
+        #browserWarning {
+          display: none;
+        }
+      }
+
+      @supports not (font-size: clamp(11px, 2vw, 16px)) {
+        #browserWarning {
+          display: block !important;
+        }
+      }
+
       @supports not (aspect-ratio: 1/1) {
         #browserWarning {
           display: block !important;
