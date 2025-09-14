@@ -46,36 +46,6 @@
       content="hKWqWqhW9t9qeA1Bk00J3TUNZVSPHGu37X6RCtqA28Y"
     />
 
-    <script>
-      const DEBUG_FORCE_WARNING = false; // set to true for testing
-
-      function isUnsupportedBrowser() {
-        if (document.documentMode) return true;
-
-        if (window.StyleMedia && !navigator.userAgent.includes("Edg/"))
-          return true;
-
-        if (!window.CSS || !CSS.supports("aspect-ratio: 1/1")) return true;
-
-        if (
-          !CSS.supports("backdrop-filter: blur(1px)") &&
-          !CSS.supports("-webkit-backdrop-filter: blur(1px)")
-        )
-          return true;
-
-        if (!document.fonts || !document.fonts.ready) return true;
-
-        return false;
-      }
-
-      if (DEBUG_FORCE_WARNING || isUnsupportedBrowser()) {
-        document.addEventListener("DOMContentLoaded", () => {
-          const warning = document.getElementById("browserWarning");
-          warning.style.display = "block";
-        });
-      }
-    </script>
-
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -1093,6 +1063,13 @@
 
       #browserWarning p {
         margin: 0;
+      }
+
+      @supports not (aspect-ratio: 1/1) or not (--foo: red) or not
+        (font-size: clamp(11px, 2vw, 16px)) {
+        #browserWarning {
+          display: block;
+        }
       }
     </style>
 
