@@ -1295,18 +1295,16 @@
             ...Array.from(
               { length: GAME_CONFIG.goodRecordTotal },
               (_, i) =>
-                `./assets/covers-good/cover-good-${String(i + 1).padStart(
-                  2,
-                  "0"
-                )}.webp`
+                `./assets/covers-good--resized/cover-good-${String(
+                  i + 1
+                ).padStart(2, "0")}.webp`
             ),
             ...Array.from(
               { length: GAME_CONFIG.badRecordTotal },
               (_, i) =>
-                `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
-                  2,
-                  "0"
-                )}.webp`
+                `./assets/covers-bad--resized/cover-bad-${String(
+                  i + 1
+                ).padStart(2, "0")}.webp`
             ),
           ];
 
@@ -1446,7 +1444,7 @@
           preShuffledBadCovers = Array.from(
             { length: GAME_CONFIG.badRecordTotal },
             (_, i) =>
-              `./assets/covers-bad/cover-bad-${String(i + 1).padStart(
+              `./assets/covers-bad--resized/cover-bad-${String(i + 1).padStart(
                 2,
                 "0"
               )}.webp`
@@ -1505,7 +1503,7 @@
               2,
               "0"
             );
-            imageUrl = `./assets/covers-good/cover-good-${idx}.webp`;
+            imageUrl = `./assets/covers-good--resized/cover-good-${idx}.webp`;
             type = "good";
           } else {
             imageUrl = preShuffledBadCovers[badCoverIndex];
