@@ -899,7 +899,6 @@
         transition: opacity 0.5s ease;
         z-index: -1;
         opacity: 0;
-        overflow-y: auto;
       }
 
       #modalContainer.visible {
@@ -918,19 +917,19 @@
         justify-content: center;
         align-items: center;
         z-index: 1001;
+        overflow: hidden;
+        overflow-y: auto;
+        transition: margin-top 0.25s ease;
       }
       .modalContent {
         opacity: 0;
         max-width: 40ch;
-        padding: 30px;
-
-        padding: 2em 2em 3em;
+        padding: 3em 2em;
         text-align: center;
         transform: scale(0.8) rotate(-2deg);
         animation: bounceIn 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards
           0.5s;
         pointer-events: all;
-        transition: margin-top 0.25s ease;
       }
       @keyframes bounceIn {
         0% {
@@ -968,9 +967,8 @@
         animation: modalBtn 0.75s ease-in-out 1s forwards;
       }
 
-      .modal-hidden .modalContent {
+      .modal-hidden {
         margin-top: -200vh;
-        opacity: 0;
       }
 
       .modal-visible {
@@ -994,6 +992,10 @@
 
       .modalButtons .btn {
         width: 100%;
+      }
+
+      #startModal h1 {
+        margin-top: 0.5em;
       }
 
       #aboutModal .modalContent {
