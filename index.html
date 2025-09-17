@@ -1308,13 +1308,13 @@
         <div class="modalContent" role="status" aria-live="polite">
           <h3>What is this?</h3>
           <p>
-            This is a dumb little game that is meant to replicate the experience
-            of looking for records in op-shops in Australia, without having to
-            subject yourself to the actual disappointment of doing it in real
-            life.
+            This is a dumb little game that mimics the experience of looking for
+            records in an Australia op-shop, but without having to subject
+            yourself to the actual disappointment of doing it in real life.
           </p>
-
-          <button class="btn" id="closeAboutButton">Ok, whatever</button>
+          <div class="modalButtons">
+            <button class="btn" id="closeAboutButton">Ok, whatever</button>
+          </div>
         </div>
       </div>
 
@@ -1325,7 +1325,9 @@
             I don't blame you — the pickings are pretty woeful! But if you don't
             have a proper look, you might regret it!
           </p>
-          <button class="btn" id="anotherGoButton">Give it another go</button>
+          <div class="modalButtons">
+            <button class="btn" id="anotherGoButton">Give it another go</button>
+          </div>
         </div>
       </div>
 
@@ -1334,7 +1336,9 @@
           <div id="finalScoreTitle"></div>
           <div id="finalScoreCovers"></div>
           <div id="finalScoreMessage"></div>
-          <button class="btn" id="restartButton">Try again?</button>
+          <div class="modalButtons">
+            <button class="btn" id="restartButton">Try again?</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1364,7 +1368,7 @@
         const GAME_CONFIG = {
           goodRecordTotal: 11, // total unique "good" covers
           badRecordTotal: 126, // total unique "bad" covers
-          goodChance: 0.1, // probability that a popped record is good
+          goodChance: 0.03, // probability that a popped record is good
           popInterval: 1000, // ms between record pops
           startTime: 30, // seconds of game time
           gameOverPickLimit: 5, // max picks before game ends
