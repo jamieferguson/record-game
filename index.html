@@ -239,8 +239,7 @@
       }
 
       h1,
-      h2,
-      h3 {
+      h2 {
         font-family: var(--titleFont);
         line-height: 0.73;
         letter-spacing: -0.02em;
@@ -296,6 +295,10 @@
         max-width: 7ch;
       }
 
+      h3 {
+        font-size: 1.5em;
+      }
+
       p {
         line-height: 1.5;
       }
@@ -318,6 +321,22 @@
       .btn:hover,
       .btn:focus-visible {
         background-color: white;
+        transform: scale(1.05);
+      }
+
+      .btn--link {
+        border-radius: 5em;
+        background-color: transparent;
+        border: none;
+        font-family: inherit;
+        font-size: 1em;
+        padding: 0.5em 1em;
+        cursor: pointer;
+        transition: transform 0.25s;
+      }
+
+      .btn--link:hover,
+      .btn--link:focus-visible {
         transform: scale(1.05);
       }
 
@@ -879,6 +898,7 @@
         transition: opacity 0.5s ease;
         z-index: -1;
         opacity: 0;
+        overflow-y: auto;
       }
 
       #modalContainer.visible {
@@ -899,17 +919,17 @@
         z-index: 1001;
       }
       .modalContent {
-        transform: scale(0.9) rotate(-70deg);
         opacity: 0;
         max-width: 40ch;
         padding: 30px;
-        border-radius: 20px;
+
         padding: 2em 2em 3em;
         text-align: center;
         transform: scale(0.8) rotate(-2deg);
         animation: bounceIn 0.75s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards
           0.5s;
         pointer-events: all;
+        transition: margin-top 0.25s ease;
       }
       @keyframes bounceIn {
         0% {
@@ -934,15 +954,57 @@
         margin: 0 0 0.5em;
       }
       .modalContent .btn {
-        margin-top: 1em;
         font-size: 1.3em;
         transition: background-color 0.25s, transform 0.25s, opacity 0.25s ease;
         pointer-events: none;
+      }
+
+      .modalContent button {
         opacity: 0;
       }
 
-      .visible .btn {
+      .visible button {
         animation: modalBtn 0.75s ease-in-out 1s forwards;
+      }
+
+      .modal-hidden .modalContent {
+        margin-top: -200vh;
+        opacity: 0;
+      }
+
+      .modal-visible {
+        display: flex;
+      }
+
+      .modal-visible .modalContent {
+        margin-top: initial;
+        animation: fadeIn 0.5s ease forwards 0.15s;
+      }
+
+      .modalButtons {
+        margin-top: 1em;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+        align-items: center;
+        margin-inline: auto;
+        width: max-content;
+      }
+
+      .modalButtons .btn {
+        width: 100%;
+      }
+
+      #aboutModal .modalContent {
+        background-color: #ffffff30;
+        border-radius: 6em;
+      }
+
+      #aboutModal .btn {
+        animation: none;
+        opacity: 1;
+        pointer-events: all;
+        margin-top: 1em;
       }
 
       @keyframes modalBtn {
@@ -957,6 +1019,15 @@
         100% {
           opacity: 1;
           pointer-events: all;
+        }
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
         }
       }
 
@@ -1223,8 +1294,24 @@
             seconds to look through the crates.
           </p>
           <p><em>You can only afford 5 records, so choose wisely!</em></p>
+          <div class="modalButtons">
+            <button class="btn" id="startButton">Let's go!</button>
+            <button class="btn--link" id="openAboutButton">About</button>
+          </div>
+        </div>
+      </div>
 
-          <button class="btn" id="startButton">Let's go!</button>
+      <div id="aboutModal" class="modal modal-hidden">
+        <div class="modalContent" role="status" aria-live="polite">
+          <h3>What is this?</h3>
+          <p>
+            This is a dumb little game that is meant to replicate the experience
+            of looking for records in op-shops in Australia, without having to
+            subject yourself to the actual disappointment of doing it in real
+            life.
+          </p>
+
+          <button class="btn" id="closeAboutButton">Ok, whatever</button>
         </div>
       </div>
 
@@ -1244,7 +1331,7 @@
           <div id="finalScoreTitle"></div>
           <div id="finalScoreCovers"></div>
           <div id="finalScoreMessage"></div>
-          <button class="btn" id="restartButton">Want to try again?</button>
+          <button class="btn" id="restartButton">Try again?</button>
         </div>
       </div>
     </div>
@@ -1351,6 +1438,7 @@
         );
         const modalContainer = qid("modalContainer");
         const startModal = qid("startModal");
+        const aboutModal = qid("aboutModal");
         const gameOverModal = qid("gameOverModal");
         const giveUpModal = qid("giveUpModal");
         const finalScoreTitle = qid("finalScoreTitle");
@@ -1364,6 +1452,8 @@
         if (yearSpan) yearSpan.textContent = new Date().getFullYear();
 
         const startButton = qid("startButton");
+        const openAboutButton = qid("openAboutButton");
+        const closeAboutButton = qid("closeAboutButton");
         const restartButton = qid("restartButton");
         const anotherGoButton = qid("anotherGoButton");
         const cancelGameButton = qid("cancelGameButton");
@@ -1684,6 +1774,18 @@
           });
         }
 
+        function aboutGameOpen() {
+          startModal.classList.add("modal-hidden");
+          aboutModal.classList.remove("modal-hidden");
+          aboutModal.classList.add("modal-visible");
+        }
+
+        function aboutGameClose() {
+          startModal.classList.remove("modal-hidden");
+          aboutModal.classList.add("modal-hidden");
+          aboutModal.classList.remove("modal-visible");
+        }
+
         function gameLoop(ts) {
           if (!gameActive) {
             return;
@@ -1706,6 +1808,22 @@
           startGame();
         });
 
+        openAboutButton.addEventListener("click", () => {
+          gtag("event", "game_about_open", {
+            event_category: "Game Flow",
+            event_label: "About Button Open Click",
+          });
+          aboutGameOpen();
+        });
+
+        closeAboutButton.addEventListener("click", () => {
+          gtag("event", "game_about_close", {
+            event_category: "Game Flow",
+            event_label: "Close About Button Click",
+          });
+          aboutGameClose();
+        });
+
         restartButton.addEventListener("click", () => {
           gtag("event", "game_restart", {
             event_category: "Game Flow",
@@ -1719,7 +1837,9 @@
             event_category: "Game Flow",
             event_label: "Another Go Button Click",
           });
-          startGame();
+
+          giveUpModal.style.display = "none";
+          startModal.style.display = "flex";
         });
 
         cancelGameButton.addEventListener("click", () => {
