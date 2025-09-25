@@ -1189,7 +1189,7 @@
             >Time left: <span id="timer">30</span>s</span
           >
         </div>
-        <button class="btn" id="cancelGameButton">I give up</button>
+        <button class="btn" id="cancelGameButton">Give up</button>
       </div>
 
       <div id="cratesContainer">
@@ -1325,19 +1325,6 @@
         </div>
       </div>
 
-      <div id="giveUpModal" class="modal">
-        <div class="modalContent" role="status" aria-live="polite">
-          <h2>Giving up already?</h2>
-          <p>
-            I don't blame you — the pickings are pretty woeful! But if you don't
-            have a proper look, you might regret it!
-          </p>
-          <div class="modalButtons">
-            <button class="btn" id="anotherGoButton">Give it another go</button>
-          </div>
-        </div>
-      </div>
-
       <div id="gameOverModal" class="modal">
         <div class="modalContent" role="status" aria-live="polite">
           <div id="finalScoreTitle"></div>
@@ -1454,7 +1441,6 @@
         const startModal = qid("startModal");
         const aboutModal = qid("aboutModal");
         const gameOverModal = qid("gameOverModal");
-        const giveUpModal = qid("giveUpModal");
         const finalScoreTitle = qid("finalScoreTitle");
         const finalScoreCovers = qid("finalScoreCovers");
         const finalScoreMessage = qid("finalScoreMessage");
@@ -1469,7 +1455,6 @@
         const openAboutButton = qid("openAboutButton");
         const closeAboutButton = qid("closeAboutButton");
         const restartButton = qid("restartButton");
-        const anotherGoButton = qid("anotherGoButton");
         const cancelGameButton = qid("cancelGameButton");
 
         const decorationCar = qid("decoration--car");
@@ -1753,7 +1738,6 @@
           startModal.style.display = "none";
           modalContainer.classList.remove("visible");
           gameOverModal.style.display = "none";
-          giveUpModal.style.display = "none";
 
           crateElements.forEach((c) => {
             c.recordEl.classList.remove("pop", "good-record", "bad-record");
@@ -1777,15 +1761,13 @@
         function cancelGame() {
           gameActive = false;
           clearInterval(timerId);
-          pickedRecords = [];
-          modalContainer.classList.add("visible");
-          giveUpModal.style.display = "flex";
           crateElements.forEach((c) => {
             clearTimeout(c.popTimeout);
             c.recordEl.classList.remove("pop");
             c.isLocked = false;
             c.popId = null;
           });
+          showGameOver();
         }
 
         function aboutGameOpen() {
@@ -1844,16 +1826,6 @@
             event_label: "Restart Button Click",
           });
           startGame();
-        });
-
-        anotherGoButton.addEventListener("click", () => {
-          gtag("event", "game_continue", {
-            event_category: "Game Flow",
-            event_label: "Another Go Button Click",
-          });
-
-          giveUpModal.style.display = "none";
-          startModal.style.display = "flex";
         });
 
         cancelGameButton.addEventListener("click", () => {
