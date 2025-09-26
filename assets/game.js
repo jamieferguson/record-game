@@ -20,9 +20,9 @@
                  CONFIG
                  ========================== */
   const GAME_CONFIG = {
-    goodRecordTotal: 11, // total unique "good" covers
-    badRecordTotal: 126, // total unique "bad" covers
-    goodChance: 0.03, // probability that a popped record is good
+    goodRecordTotal: 11, // total "good" covers
+    badRecordTotal: 126, // total "bad" covers
+    goodChance: 0.05, // probability of good record
     popInterval: 1000, // ms between record pops
     startTime: 30, // seconds of game time
     gameOverPickLimit: 5, // max picks before game ends
@@ -133,6 +133,7 @@
   let crateElements = [];
 
   let state = {
+    availableCrates: [],
     pickedRecords: [],
     goodRecord: 0,
     badRecord: 0,
@@ -189,7 +190,6 @@
     });
   }
 
-  // Function to generate and shuffle the bad covers once
   function generateBadCovers() {
     preShuffledBadCovers = Array.from(
       { length: GAME_CONFIG.badRecordTotal },
@@ -233,18 +233,17 @@
   }
 
   function popRecord() {
-    if (!state.gameActive) return;
+    if (!state.gameActive || !state.availableCrates.length) return;
 
-    const spots = crateElements.filter((c) => !c.isLocked);
-    if (!spots.length) return;
-
-    const crate = spots[Math.floor(Math.random() * spots.length)];
+    const spotIndex = Math.floor(Math.random() * state.availableCrates.length);
+    const crate = state.availableCrates[spotIndex];
     crate.isLocked = true;
+    state.availableCrates.splice(spotIndex, 1);
 
     const isGood = Math.random() < GAME_CONFIG.goodChance;
     let imageUrl, type;
 
-    if (isGood) {
+    if (isGood && preGeneratedGoodCovers.length > 0) {
       const randomIndex = Math.floor(
         Math.random() * preGeneratedGoodCovers.length
       );
@@ -266,10 +265,12 @@
   function hideRecord(crate) {
     crate.recordEl.addEventListener(
       "transitionend",
-      (e) => {
-        if (e.propertyName !== "transform") return;
+      () => {
         crate.recordEl.classList.remove("good-record", "bad-record");
         crate.isLocked = false;
+        if (state.gameActive) {
+          state.availableCrates.push(crate);
+        }
       },
       { once: true }
     );
@@ -353,13 +354,16 @@
       finalScoreMessage.innerHTML = `<p>You found ${state.goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
     }
 
+    const fragment = document.createDocumentFragment();
     state.pickedRecords.forEach((r) => {
       const d = createEl("div", `picked-record ${r.type}-cover`);
       const img = createEl("img");
       img.src = r.imageUrl;
       d.appendChild(img);
-      finalScoreCovers.appendChild(d);
+      fragment.appendChild(d);
     });
+
+    finalScoreCovers.appendChild(fragment);
     modalContainer.classList.add("visible");
     gameOverModal.style.display = "flex";
   }
@@ -388,6 +392,7 @@
     state.pickedRecords = [];
     state.gameActive = true;
     state.badCoverIndex = 0;
+    state.availableCrates = [...crateElements];
 
     startModal.style.display = "none";
     modalContainer.classList.remove("visible");
@@ -398,7 +403,6 @@
       clearTimeout(c.popTimeout);
       c.isLocked = false;
       c.popId = null;
-      c.coverImgEl.src = "";
       c.coverEl.classList.remove("bad-record");
     });
 
