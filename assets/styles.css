@@ -624,7 +624,7 @@ a {
   transform: translateY(0);
   transition: transform 0.25s cubic-bezier(0.71, -0.36, 0.35, 1.37),
     box-shadow 0.1s ease;
-  box-shadow: 0 calc(var(--crate-size) / 12 * -1) 30px -10px #00000050;
+  box-shadow: 0 calc(var(--crate-size) / 12 * -1) 30px -10px #00000070;
 }
 
 .crateContainer:nth-of-type(odd) .record.pop {
