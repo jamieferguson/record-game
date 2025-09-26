@@ -1,8 +1,8 @@
-document.addEventListener("DOMContentLoaded", async () => {
+(async () => {
   /* ==========================
                  SHORTCUTS / UTILITIES
                  ========================== */
-  const qs = (sel) => document.querySelector(sel);
+
   const qid = (id) => document.getElementById(id);
   const createEl = (tag, cls) => {
     const el = document.createElement(tag);
@@ -315,13 +315,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function addAnimationOnInteraction(el, animationClass) {
     if (!el) return;
 
-    // Desktop hover
-    el.addEventListener("click", () => {
-      el.classList.add(animationClass);
-    });
-
-    // Touch (mobile / tablet)
-    el.addEventListener("touchstart", () => {
+    el.addEventListener("pointerdown", () => {
       el.classList.add(animationClass);
     });
   }
@@ -529,4 +523,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   generateBadCovers();
   setCrateCovers();
   gameLoop(0);
-});
+})();
