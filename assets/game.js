@@ -145,7 +145,6 @@
   // Changed `badCovers` to a pre-shuffled array
   let preShuffledBadCovers = [];
   let badCoverIndex = 0;
-  let availableBadCovers = [];
   let lastScore = 0;
 
   /* ==========================
@@ -374,6 +373,7 @@
 
     pickedRecords.push({ type: crate.type, imageUrl: crate.imgEl.src });
     crate.type === "good" ? goodRecord++ : badRecord++;
+    if (navigator.vibrate) navigator.vibrate(30);
     updateScoreboard();
     checkGameOver();
     hideRecord(crate);
