@@ -462,6 +462,7 @@
 
       #scoreBoard--total {
         background-color: #ffffff50;
+        will-change: transform;
       }
 
       #scoreBoard--total.animate {
@@ -648,7 +649,7 @@
       /* RECORDS */
 
       .record {
-        will-change: transform;
+        will-change: transform, opacity;
         border: none;
         background-color: transparent;
         padding: 0;
@@ -1628,9 +1629,10 @@
 
           // Only animate if score actually increased
           if (currentScore > lastScore && totalContainer) {
-            totalContainer.classList.remove("animate"); // reset if still active
-            void totalContainer.offsetWidth; // force reflow
-            totalContainer.classList.add("animate");
+            totalContainer.classList.remove("animate");
+            requestAnimationFrame(() => {
+              totalContainer.classList.add("animate");
+            });
           }
 
           if (timerSpan) {
