@@ -851,6 +851,7 @@ a {
 }
 .modalContent {
   opacity: 0;
+  width: 100%;
   max-width: 55ch;
   padding: 3em 2em;
   text-align: center;
@@ -1000,25 +1001,25 @@ a {
 }
 
 #finalScoreCovers:not(:empty) .picked-record:nth-of-type(2) {
-  margin-left: -10%;
+  margin-left: -12%;
   transform: rotate(-2deg);
   top: -2px;
 }
 
 #finalScoreCovers:not(:empty) .picked-record:nth-of-type(3) {
-  margin-left: -10%;
+  margin-left: -12%;
   transform: rotate(1deg) scale(1.05);
   top: -2px;
 }
 
 #finalScoreCovers:not(:empty) .picked-record:nth-of-type(4) {
-  margin-left: -10%;
+  margin-left: -12%;
   transform: rotate(2deg);
   top: 1px;
 }
 
 #finalScoreCovers:not(:empty) .picked-record:nth-of-type(5) {
-  margin-left: -10%;
+  margin-left: -12%;
   transform: scale(0.9) rotate(7deg);
   top: 10px;
 }
