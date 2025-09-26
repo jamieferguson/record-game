@@ -163,12 +163,14 @@
 
       const recordImg = document.createElement("img");
       recordImg.className = "record-img";
+      recordImg.alt = "";
       recordBtn.appendChild(recordImg);
 
       const cover = document.createElement("div");
       cover.className = "crate-cover";
       const coverImg = document.createElement("img");
       coverImg.className = "record-img";
+      coverImg.alt = "";
       cover.appendChild(coverImg);
 
       const box = document.createElement("div");
