@@ -502,6 +502,7 @@ a {
 
 .crateContainer {
   position: relative;
+  touch-action: none;
 }
 
 .crateContainer--inner {
@@ -521,10 +522,6 @@ a {
   z-index: 10;
   pointer-events: none;
   cursor: default;
-}
-
-#crate-01 .crate-box {
-  background-image: url(./crate-plastic--orange.webp);
 }
 
 #crate-02 .crate-box {

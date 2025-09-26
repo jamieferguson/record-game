@@ -103,6 +103,7 @@
   const startModal = qid("startModal");
   const aboutModal = qid("aboutModal");
   const gameOverModal = qid("gameOverModal");
+  const cratesContainer = qid("cratesContainer");
   const finalScoreTitle = qid("finalScoreTitle");
   const finalScoreCovers = qid("finalScoreCovers");
   const finalScoreMessage = qid("finalScoreMessage");
@@ -126,26 +127,25 @@
   const decorationMary = qid("decoration--mary");
 
   /* ==========================
-         STATE
-         ========================== */
-  const RECORD_TYPES = {
-    GOOD: GAME_CONFIG.goodRecordTotal,
-    BAD: GAME_CONFIG.badRecordTotal,
-  };
+       STATE
+       ========================== */
 
   let crateElements = [];
-  let pickedRecords = [];
-  let goodRecord = 0,
-    badRecord = 0,
-    gameTime = GAME_CONFIG.startTime;
-  let gameActive = false,
-    lastPopTime = 0,
-    timerId;
 
-  // Changed `badCovers` to a pre-shuffled array
+  let state = {
+    pickedRecords: [],
+    goodRecord: 0,
+    badRecord: 0,
+    gameTime: GAME_CONFIG.startTime,
+    gameActive: false,
+    lastPopTime: 0,
+    timerId: null,
+    badCoverIndex: 0,
+    lastScore: 0,
+  };
+
   let preShuffledBadCovers = [];
-  let badCoverIndex = 0;
-  let lastScore = 0;
+  let preGeneratedGoodCovers = [];
 
   /* ==========================
          CRATES MODULE
@@ -199,15 +199,17 @@
           "0"
         )}.webp`
     );
-    shuffleArray(preShuffledBadCovers);
   }
 
-  // Optimized setCrateCovers function
-  function setCrateCovers() {
-    crateElements.forEach((crate, index) => {
-      crate.coverImgEl.src = preShuffledBadCovers[index];
-      crate.coverEl.classList.add("bad-record");
-    });
+  function generateGoodCovers() {
+    preGeneratedGoodCovers = Array.from(
+      { length: GAME_CONFIG.goodRecordTotal },
+      (_, i) =>
+        `./assets/covers-good--resized/cover-good-${String(i + 1).padStart(
+          2,
+          "0"
+        )}.webp`
+    );
   }
 
   /* ==========================
@@ -220,7 +222,7 @@
     crate.imgEl.src = record.imageUrl;
 
     const reveal = () => {
-      if (!gameActive || crate.popId !== popId) return;
+      if (!state.gameActive || crate.popId !== popId) return;
       crate.recordEl.classList.add(`${record.type}-record`, "pop");
       crate.popTimeout = setTimeout(() => hideRecord(crate), hideAfter);
     };
@@ -230,9 +232,8 @@
       .catch(reveal);
   }
 
-  // Optimized popRecord function
   function popRecord() {
-    if (!gameActive) return;
+    if (!state.gameActive) return;
 
     const spots = crateElements.filter((c) => !c.isLocked);
     if (!spots.length) return;
@@ -244,17 +245,16 @@
     let imageUrl, type;
 
     if (isGood) {
-      const count = RECORD_TYPES.GOOD;
-      const idx = String(Math.floor(Math.random() * count) + 1).padStart(
-        2,
-        "0"
+      const randomIndex = Math.floor(
+        Math.random() * preGeneratedGoodCovers.length
       );
-      imageUrl = `./assets/covers-good--resized/cover-good-${idx}.webp`;
+      imageUrl = preGeneratedGoodCovers[randomIndex];
       type = "good";
     } else {
-      imageUrl = preShuffledBadCovers[badCoverIndex];
+      imageUrl = preShuffledBadCovers[state.badCoverIndex];
       type = "bad";
-      badCoverIndex = (badCoverIndex + 1) % preShuffledBadCovers.length;
+      state.badCoverIndex =
+        (state.badCoverIndex + 1) % preShuffledBadCovers.length;
     }
 
     revealWhenReady(crate, {
@@ -277,14 +277,14 @@
   }
 
   function updateScoreboard() {
-    const currentScore = goodRecord + badRecord;
+    const currentScore = state.goodRecord + state.badRecord;
 
     if (totalSpan) {
       totalSpan.textContent = currentScore;
     }
 
     // Only animate if score actually increased
-    if (currentScore > lastScore && totalContainer) {
+    if (currentScore > state.lastScore && totalContainer) {
       totalContainer.classList.remove("animate");
       requestAnimationFrame(() => {
         totalContainer.classList.add("animate");
@@ -292,18 +292,18 @@
     }
 
     if (timerSpan) {
-      timerSpan.textContent = gameTime;
+      timerSpan.textContent = state.gameTime;
     }
 
-    lastScore = currentScore; // update tracker
+    state.lastScore = currentScore; // update tracker
   }
 
   function checkGameOver() {
     if (
-      goodRecord + badRecord >= GAME_CONFIG.gameOverPickLimit ||
-      gameTime <= 0
+      state.goodRecord + state.badRecord >= GAME_CONFIG.gameOverPickLimit ||
+      state.gameTime <= 0
     ) {
-      gameActive = false;
+      state.gameActive = false;
       showGameOver();
     }
   }
@@ -326,34 +326,34 @@
   addAnimationOnInteraction(decorationMary, "fall");
 
   function showGameOver() {
-    clearInterval(timerId);
+    clearInterval(state.timerId);
     finalScoreTitle.innerHTML = "";
     finalScoreMessage.innerHTML = "";
     finalScoreCovers.innerHTML = "";
 
-    if (goodRecord === 0 && badRecord === 0) {
+    if (state.goodRecord === 0 && state.badRecord === 0) {
       finalScoreTitle.innerHTML =
         "<h2>Another typical day in the op-shop!</h2>";
       finalScoreMessage.innerHTML =
         "<p>You didn't find anything worth buying, but at least you didn't waste any money.</p>";
-      pickedRecords = [];
-    } else if (goodRecord === 0) {
+      state.pickedRecords = [];
+    } else if (state.goodRecord === 0) {
       finalScoreTitle.innerHTML = "<h2>What a waste of money!</h2>";
       finalScoreMessage.innerHTML = "<p>All you bought was crap.</p>";
-    } else if (goodRecord === 1 && badRecord === 0) {
+    } else if (state.goodRecord === 1 && state.badRecord === 0) {
       finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
       finalScoreMessage.innerHTML =
         "<p>You actually found something half-decent for a change, but it has the wrong record inside! Oh well.</p>";
-    } else if (goodRecord === 1 && badRecord >= 0) {
+    } else if (state.goodRecord === 1 && state.badRecord >= 0) {
       finalScoreTitle.innerHTML = "<h2>How'd you go?</h2>";
       finalScoreMessage.innerHTML =
         "<p>You actually found one decent record amongst the crap, but there is a scratch across the best track! Oh well.</p>";
-    } else if (goodRecord >= 1) {
+    } else if (state.goodRecord >= 1) {
       finalScoreTitle.innerHTML = "<h2>Any luck?</h2>";
-      finalScoreMessage.innerHTML = `<p>You found ${goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
+      finalScoreMessage.innerHTML = `<p>You found ${state.goodRecord} good records amongst all that crap - pity they're in unplayable condition! What did you expect?!</p>`;
     }
 
-    pickedRecords.forEach((r) => {
+    state.pickedRecords.forEach((r) => {
       const d = createEl("div", `picked-record ${r.type}-cover`);
       const img = createEl("img");
       img.src = r.imageUrl;
@@ -364,15 +364,14 @@
     gameOverModal.style.display = "flex";
   }
 
-  function handleRecordClick(crate, e) {
-    e?.preventDefault();
-    if (!gameActive || !crate.recordEl.classList.contains("pop")) return;
+  function handleRecordClick(crate) {
+    if (!state.gameActive || !crate.recordEl.classList.contains("pop")) return;
 
     crate.recordEl.classList.remove("pop");
     clearTimeout(crate.popTimeout);
 
-    pickedRecords.push({ type: crate.type, imageUrl: crate.imgEl.src });
-    crate.type === "good" ? goodRecord++ : badRecord++;
+    state.pickedRecords.push({ type: crate.type, imageUrl: crate.imgEl.src });
+    crate.type === "good" ? state.goodRecord++ : state.badRecord++;
     if (navigator.vibrate) navigator.vibrate(30);
     updateScoreboard();
     checkGameOver();
@@ -383,11 +382,13 @@
          GAME CONTROL
          ========================== */
   function startGame() {
-    goodRecord = 0;
-    badRecord = 0;
-    gameTime = GAME_CONFIG.startTime;
-    pickedRecords = [];
-    gameActive = true;
+    state.goodRecord = 0;
+    state.badRecord = 0;
+    state.gameTime = GAME_CONFIG.startTime;
+    state.pickedRecords = [];
+    state.gameActive = true;
+    state.badCoverIndex = 0;
+
     startModal.style.display = "none";
     modalContainer.classList.remove("visible");
     gameOverModal.style.display = "none";
@@ -397,23 +398,37 @@
       clearTimeout(c.popTimeout);
       c.isLocked = false;
       c.popId = null;
+      c.coverImgEl.src = "";
+      c.coverEl.classList.remove("bad-record");
     });
 
+    shuffleArray(preShuffledBadCovers);
+
+    const cratesCount = crateElements.length;
+    for (let i = 0; i < cratesCount; i++) {
+      const crate = crateElements[i];
+      crate.coverImgEl.src = preShuffledBadCovers[state.badCoverIndex];
+      crate.coverEl.classList.add("bad-record");
+
+      state.badCoverIndex =
+        (state.badCoverIndex + 1) % preShuffledBadCovers.length;
+    }
+
     updateScoreboard();
-    clearInterval(timerId);
-    timerId = setInterval(() => {
-      gameTime--;
+    clearInterval(state.timerId);
+    state.timerId = setInterval(() => {
+      state.gameTime--;
       updateScoreboard();
       checkGameOver();
     }, 1000);
 
-    lastPopTime = performance.now();
+    state.lastPopTime = performance.now();
     requestAnimationFrame(gameLoop);
   }
 
   function cancelGame() {
-    gameActive = false;
-    clearInterval(timerId);
+    state.gameActive = false;
+    clearInterval(state.timerId);
     crateElements.forEach((c) => {
       clearTimeout(c.popTimeout);
       c.recordEl.classList.remove("pop");
@@ -436,12 +451,12 @@
   }
 
   function gameLoop(ts) {
-    if (!gameActive) {
+    if (!state.gameActive) {
       return;
     }
-    if (ts - lastPopTime > GAME_CONFIG.popInterval) {
+    if (ts - state.lastPopTime > GAME_CONFIG.popInterval) {
       popRecord();
-      lastPopTime = ts;
+      state.lastPopTime = ts;
     }
     requestAnimationFrame(gameLoop);
   }
@@ -450,42 +465,52 @@
          EVENT BINDING
          ========================== */
   startButton.addEventListener("click", () => {
-    gtag("event", "game_start", {
-      event_category: "Game Flow",
-      event_label: "Start Button Click",
-    });
+    if (typeof gtag === "function") {
+      gtag("event", "game_start", {
+        event_category: "Game Flow",
+        event_label: "Start Button Click",
+      });
+    }
     startGame();
   });
 
   openAboutButton.addEventListener("click", () => {
-    gtag("event", "game_about_open", {
-      event_category: "Game Flow",
-      event_label: "About Button Open Click",
-    });
+    if (typeof gtag === "function") {
+      gtag("event", "game_about_open", {
+        event_category: "Game Flow",
+        event_label: "About Button Open Click",
+      });
+    }
     aboutGameOpen();
   });
 
   closeAboutButton.addEventListener("click", () => {
-    gtag("event", "game_about_close", {
-      event_category: "Game Flow",
-      event_label: "Close About Button Click",
-    });
+    if (typeof gtag === "function") {
+      gtag("event", "game_about_close", {
+        event_category: "Game Flow",
+        event_label: "Close About Button Click",
+      });
+    }
     aboutGameClose();
   });
 
   restartButton.addEventListener("click", () => {
-    gtag("event", "game_restart", {
-      event_category: "Game Flow",
-      event_label: "Restart Button Click",
-    });
+    if (typeof gtag === "function") {
+      gtag("event", "game_restart", {
+        event_category: "Game Flow",
+        event_label: "Restart Button Click",
+      });
+    }
     startGame();
   });
 
   cancelGameButton.addEventListener("click", () => {
-    gtag("event", "game_give_up", {
-      event_category: "Game Flow",
-      event_label: "Give Up Button Click",
-    });
+    if (typeof gtag === "function") {
+      gtag("event", "game_give_up", {
+        event_category: "Game Flow",
+        event_label: "Give Up Button Click",
+      });
+    }
     cancelGame();
   });
 
@@ -501,7 +526,7 @@
       }
     },
     {
-      passive: false,
+      passive: true,
     }
   );
 
@@ -521,6 +546,6 @@
    ========================== */
   generateCrates();
   generateBadCovers();
-  setCrateCovers();
+  generateGoodCovers();
   gameLoop(0);
 })();
