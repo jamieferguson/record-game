@@ -570,7 +570,7 @@ a {
 /* RECORDS */
 
 .record {
-  will-change: transform, opacity;
+  will-change: transform, opacity, box-shadow;
   border: none;
   background-color: transparent;
   padding: 0;
@@ -587,6 +587,7 @@ a {
   z-index: 1;
   -webkit-tap-highlight-color: transparent;
 }
+/* ADD GRADIENT TO RECORDS */
 .record:after {
   content: "";
   position: absolute;
@@ -602,6 +603,18 @@ a {
     rgba(0, 0, 0, 0.5) 100%
   );
 }
+.record:before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 2px solid #ffffff50;
+  z-index: 1;
+}
+
 .record:active {
   opacity: 0.9;
 }
@@ -609,7 +622,9 @@ a {
 .record.pop {
   pointer-events: auto;
   transform: translateY(0);
-  transition: transform 0.25s cubic-bezier(0.71, -0.36, 0.35, 1.37);
+  transition: transform 0.25s cubic-bezier(0.71, -0.36, 0.35, 1.37),
+    box-shadow 0.1s ease;
+  box-shadow: 0 calc(var(--crate-size) / 12 * -1) 30px -10px #00000050;
 }
 
 .crateContainer:nth-of-type(odd) .record.pop {
