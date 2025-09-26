@@ -190,6 +190,19 @@
     });
   }
 
+  function initializeCrateCovers() {
+    shuffleArray(preShuffledBadCovers);
+
+    let coverIndex = 0;
+    for (let i = 0; i < crateElements.length; i++) {
+      const crate = crateElements[i];
+      crate.coverImgEl.src = preShuffledBadCovers[coverIndex];
+      crate.coverEl.classList.add("bad-record");
+
+      coverIndex = (coverIndex + 1) % preShuffledBadCovers.length;
+    }
+  }
+
   function generateBadCovers() {
     preShuffledBadCovers = Array.from(
       { length: GAME_CONFIG.badRecordTotal },
@@ -551,5 +564,6 @@
   generateCrates();
   generateBadCovers();
   generateGoodCovers();
+  initializeCrateCovers();
   gameLoop(0);
 })();
